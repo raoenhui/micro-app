@@ -7,6 +7,7 @@ import { Spin } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import config from '../../config'
 
+
 const antIcon = <LoadingOutlined style={{ fontSize: 30 }} spin />
 
 function React17 () {
@@ -31,7 +32,8 @@ function React17 () {
       }
       <micro-app
         name='react17'
-        url={`${config.react17}micro-app/react17`}
+        url='http://localhost:8080/map.html'
+        // url={`${config.react17}micro-app/react17`}
         data={{from: '来自基座的数据'}}
         onMounted={() => hideLoading(false)}
         // destroy
@@ -42,5 +44,9 @@ function React17 () {
     </div>
   )
 }
+
+
+
+
 
 export default React17

@@ -55,136 +55,148 @@ const prefetchConfig = [
 window['scopeKeySpe'] = 'value from base app'
 window.Vue = { tip: 'Vue from base' }
 
-microApp.start({
-  // shadowDOM: true,
-  // inline: true,
-  // destroy: true,
-  // disableScopecss: true,
-  // disableSandbox: true,
-  // 'disable-scopecss': true,
-  // 'disable-sandbox': true,
-  // 'disable-memory-router': true,
-  // 'disable-patch-request': true,
-  // 'keep-router-state': true,
-  // 'hidden-router': true,
-  // 'router-mode': 'custom',
-  // esmodule: true,
-  // ssr: true,
-  // preFetchApps: prefetchConfig,
-  // prefetchLevel: 3,
-  // prefetchDelay: 10000,
-  // iframe: true,
-  // getRootElementParentNode (node, appName) {
-  //   return node.parentElement
-  // },
-  lifeCycles: {
-    created (e) {
-      console.log('created 全局监听', 'name:', e.detail.name)
-    },
-    beforemount (e) {
-      console.log('beforemount 全局监听', 'name:', e.detail.name)
-    },
-    mounted (e) {
-      console.log('mounted 全局监听', 'name:', e.detail.name)
-    },
-    unmount (e) {
-      console.log('unmount 全局监听', 'name:', e.detail.name)
-    },
-    error (e) {
-      console.log('error 全局监听', 'name:', e.detail.name)
-    },
-    beforeshow (e) {
-      console.log('beforeshow 全局监听', 'name:', e.detail.name)
-    },
-    aftershow (e) {
-      console.log('aftershow 全局监听', 'name:', e.detail.name)
-    },
-    afterhidden (e) {
-      console.log('afterhidden 全局监听', 'name:', e.detail.name)
-    },
-  },
-  plugins: {
-    global: [
-      {
-        scopeProperties: ['scopeKey1', 'scopeKey2', 'scopeKeySpe'],
-        escapeProperties: ['escapeKey1', 'escapeKey2'],
-        options: {a: 1,},
-        loader(code, url, options) {
-          // console.log('vue2插件', url, options)
-          return code
-        }
-      }
-    ],
-    modules: {
-      react16: [{
-        scopeProperties: ['scopeKey3', 'scopeKey4'],
-        escapeProperties: ['escapeKey3', 'escapeKey4'],
-        // loader(code, url) {
-        //   if (process.env.NODE_ENV === 'development' && code.indexOf('sockjs-node') > -1) {
-        //     console.log('react16插件', url)
-        //     code = code.replace('window.location.port', '3001')
-        //   }
-        //   return code
-        // }
-      }],
-      vue2: [{
-        scopeProperties: ['scopeKey5', 'scopeKey6'],
-        escapeProperties: ['escapeKey5', 'escapeKey6'],
-        loader(code, url) {
-          // console.log('vue2插件', url)
-          return code
-        }
-      }],
-      vite2: [{
-        escapeProperties: ['escapeKey3', 'escapeKey4'],
-      }],
-    }
-  },
-  /**
-   * 自定义fetch
-   * @param url 静态资源地址
-   * @param options fetch请求配置项
-   * @returns Promise<string>
-  */
-  fetch (url, options, appName) {
-    if (url === 'http://localhost:3001/error.js') {
-      return Promise.resolve('')
-    }
+// microApp.start({
+//   // shadowDOM: true,
+//   // inline: true,
+//   // destroy: true,
+//   // disableScopecss: true,
+//   // disableSandbox: true,
+//   // 'disable-scopecss': true,
+//   // 'disable-sandbox': true,
+//   // 'disable-memory-router': true,
+//   // 'disable-patch-request': true,
+//   // 'keep-router-state': true,
+//   // 'hidden-router': true,
+//   // 'router-mode': 'custom',
+//   // esmodule: true,
+//   // ssr: true,
+//   // preFetchApps: prefetchConfig,
+//   // prefetchLevel: 3,
+//   // prefetchDelay: 10000,
+//   // iframe: true,
+//   // getRootElementParentNode (node, appName) {
+//   //   return node.parentElement
+//   // },
+//   lifeCycles: {
+//     created (e) {
+//       console.log('created 全局监听', 'name:', e.detail.name)
+//     },
+//     beforemount (e) {
+//       console.log('beforemount 全局监听', 'name:', e.detail.name)
+//     },
+//     mounted (e) {
+//       console.log('mounted 全局监听', 'name:', e.detail.name)
+//     },
+//     unmount (e) {
+//       console.log('unmount 全局监听', 'name:', e.detail.name)
+//     },
+//     error (e) {
+//       console.log('error 全局监听', 'name:', e.detail.name)
+//     },
+//     beforeshow (e) {
+//       console.log('beforeshow 全局监听', 'name:', e.detail.name)
+//     },
+//     aftershow (e) {
+//       console.log('aftershow 全局监听', 'name:', e.detail.name)
+//     },
+//     afterhidden (e) {
+//       console.log('afterhidden 全局监听', 'name:', e.detail.name)
+//     },
+//   },
+//   plugins: {
+//     global: [
+//       {
+//         scopeProperties: ['scopeKey1', 'scopeKey2', 'scopeKeySpe'],
+//         escapeProperties: ['escapeKey1', 'escapeKey2'],
+//         options: {a: 1,},
+//         loader(code, url, options) {
+//           // console.log('vue2插件', url, options)
+//           return code
+//         }
+//       }
+//     ],
+//     modules: {
+//       react16: [{
+//         scopeProperties: ['scopeKey3', 'scopeKey4'],
+//         escapeProperties: ['escapeKey3', 'escapeKey4'],
+//         // loader(code, url) {
+//         //   if (process.env.NODE_ENV === 'development' && code.indexOf('sockjs-node') > -1) {
+//         //     console.log('react16插件', url)
+//         //     code = code.replace('window.location.port', '3001')
+//         //   }
+//         //   return code
+//         // }
+//       }],
+//       vue2: [{
+//         scopeProperties: ['scopeKey5', 'scopeKey6'],
+//         escapeProperties: ['escapeKey5', 'escapeKey6'],
+//         loader(code, url) {
+//           // console.log('vue2插件', url)
+//           return code
+//         }
+//       }],
+//       vite2: [{
+//         escapeProperties: ['escapeKey3', 'escapeKey4'],
+//       }],
+//     }
+//   },
+//   /**
+//    * 自定义fetch
+//    * @param url 静态资源地址
+//    * @param options fetch请求配置项
+//    * @returns Promise<string>
+//   */
+//   fetch (url, options, appName) {
+//     if (url === 'http://localhost:3001/error.js') {
+//       return Promise.resolve('')
+//     }
 
-    let config = null
-    if (url === 'http://localhost:3001/micro-app/react16/?a=1') {
-      config = {
-        // headers: {
-        //   'custom-head': 'custom-head',
-        // },
-        // micro-app默认不带cookie，如果需要添加cookie需要设置credentials
-        // credentials: 'include',
-      }
-    }
+//     let config = null
+//     if (url === 'http://localhost:3001/micro-app/react16/?a=1') {
+//       config = {
+//         // headers: {
+//         //   'custom-head': 'custom-head',
+//         // },
+//         // micro-app默认不带cookie，如果需要添加cookie需要设置credentials
+//         // credentials: 'include',
+//       }
+//     }
 
-    return fetch(url, Object.assign(options, config)).then((res) => {
-      return res.text()
-    })
-  },
-  excludeAssetFilter (assetUrl) {
-    if (assetUrl === 'http://127.0.0.1:8080/js/defer.js') {
-      return true
-    } else if (assetUrl === 'http://127.0.0.1:8080/facefont.css') {
-      return true
-    }
-    return false
-  }
-})
+//     return fetch(url, Object.assign(options, config)).then((res) => {
+//       return res.text()
+//     })
+//   },
+//   excludeAssetFilter (assetUrl) {
+//     if (assetUrl === 'http://127.0.0.1:8080/js/defer.js') {
+//       return true
+//     } else if (assetUrl === 'http://127.0.0.1:8080/facefont.css') {
+//       return true
+//     }
+//     return false
+//   }
+// })
 
 // microApp.start({
 //   plugins: {
 //     global: [
-//       {
-//         scopeProperties: ['AMap'],
-//       }
+//       pluginObj
 //     ],
-//   },
+//   }
 // })
+
+microApp.start({
+  plugins: {
+    global: [
+      { exclude: (url) => ['apikey.map.qq.js'].some(item => url.includes(item)),
+        ignoreChecker: (url) => ['apikey.map.qq.com', 'confinfo.map.qq.com','overseactrl.map.qq.com'].some(item => url.includes(item)), // 可选
+      }
+    ],
+  }
+})
+
+
+
+
 
 // ----------------------分割线--测试全局方法--------------------- //
 // setTimeout(() => {
