@@ -201,11 +201,11 @@ function createProxyDocument (
     const mergedProxyDocumentProps = new Map([
       ...builtInProxyProps,
       ...customProxyDocumentProps,
-    ]);
+    ])
     return mergedProxyDocumentProps
   }
 
-  const mergedProxyDocumentProps = genProxyDocumentProps();
+  const mergedProxyDocumentProps = genProxyDocumentProps()
 
   const proxyDocument = new Proxy(rawDocument, {
     get: (target: Document, key: PropertyKey): unknown => {

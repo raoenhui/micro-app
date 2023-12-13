@@ -20,6 +20,26 @@ import {
   escape2RawWindowKeys,
   escape2RawWindowRegExpKeys,
 } from './special_key'
+import { appInstanceMap } from '../../create_app'
+
+const filterRegKey = (regKey: string[] | undefined, escape2RawWindowRegExpKeys: RegExp[]) => {
+  const result = []
+  if (regKey) {
+    for (const item of escape2RawWindowRegExpKeys) {
+      let temp = false
+      for (const str of regKey) {
+        if (item.test(str)) {
+          temp = true
+          break
+        }
+      }
+      if (!temp) {
+        result.push(item)
+      }
+    }
+  }
+  return result
+}
 
 /**
  * patch window of child app
@@ -47,14 +67,18 @@ function patchWindowProperty (
   microAppWindow: microAppWindowType,
 ):void {
   const rawWindow = globalEnv.rawWindow
+  const app = appInstanceMap.get(appName)
 
   escape2RawWindowKeys.forEach((key: string) => {
     microAppWindow[key] = bindFunctionToRawTarget(rawWindow[key], rawWindow)
   })
 
+  const regKey = app?.ignoreEditKey?.split(',')
+  const filterEscape2RawWindowRegExpKeys = filterRegKey(regKey, escape2RawWindowRegExpKeys)
+
   Object.getOwnPropertyNames(microAppWindow)
     .filter((key: string) => {
-      escape2RawWindowRegExpKeys.some((reg: RegExp) => {
+      filterEscape2RawWindowRegExpKeys.some((reg: RegExp) => {
         if (reg.test(key) && key in microAppWindow.parent) {
           if (isFunction(rawWindow[key])) {
             microAppWindow[key] = bindFunctionToRawTarget(rawWindow[key], rawWindow)

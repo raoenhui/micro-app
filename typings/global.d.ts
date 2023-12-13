@@ -179,6 +179,7 @@ declare module '@micro-app/types' {
     isPrefetch: boolean // whether prefetch app, default is false
     isPrerender: boolean
     prefetchLevel?: number
+    ignoreEditKey?: string | null
     // defaultPage: string // default page when mount
     // baseroute: string // route prefix, default is ''
     // hiddenRouter: boolean // hide router info of child from browser url
@@ -338,6 +339,7 @@ declare module '@micro-app/types' {
     fiber?: boolean
     prefetchLevel?: number
     prefetchDelay?: number
+    ignoreEditKey?:string | null
   }
 
   interface OptionsType extends MicroAppConfig {

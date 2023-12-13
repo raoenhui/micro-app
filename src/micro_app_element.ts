@@ -54,6 +54,7 @@ export function defineElement (tagName: string): void {
     public appUrl = '' // app url
     public ssrUrl = '' // html path in ssr mode
     public version = version
+    public ignoreEditKey = ''
 
     // 👇 Configuration
     // name: app name
@@ -356,6 +357,7 @@ export function defineElement (tagName: string): void {
         useSandbox: this.useSandbox(),
         inline: this.getDisposeResult('inline'),
         iframe: this.getDisposeResult('iframe'),
+        ignoreEditKey: this.getIgnoreEditKeyConfig('ignoreEditKey'),
         ssrUrl: this.ssrUrl,
         routerMode: this.getMemoryRouterMode(),
       })
@@ -442,6 +444,14 @@ export function defineElement (tagName: string): void {
     private handleShowKeepAliveApp (app: AppInterface): void {
       // must be async
       defer(() => app.showKeepAliveApp(this.shadowRoot ?? this))
+    }
+
+    /**
+     * Get ignoreEditKey configuration
+     * @param name Configuration item name
+     */
+    public getIgnoreEditKeyConfig <T extends keyof OptionsType> (name: T): string | null {
+      return this.compatibleProperties(name) ? this.getAttribute(name) : ''
     }
 
     /**

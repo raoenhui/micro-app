@@ -55,6 +55,7 @@ export interface CreateAppParam {
   isPrefetch?: boolean
   prefetchLevel?: number
   routerMode?: string
+  ignoreEditKey?: string | null
 }
 
 export default class CreateApp implements AppInterface {
@@ -81,6 +82,7 @@ export default class CreateApp implements AppInterface {
   public prefetchLevel?: number
   public fiber = false
   public routerMode: string
+  public ignoreEditKey: string | null
 
   constructor ({
     name,
@@ -94,6 +96,7 @@ export default class CreateApp implements AppInterface {
     isPrefetch,
     prefetchLevel,
     routerMode,
+    ignoreEditKey,
   }: CreateAppParam) {
     appInstanceMap.set(name, this)
     // init actions
@@ -112,6 +115,7 @@ export default class CreateApp implements AppInterface {
     // not exist when prefetch 👇
     this.container = container ?? null
     this.ssrUrl = ssrUrl ?? ''
+    this.ignoreEditKey = ignoreEditKey ?? ''
 
     // exist only prefetch 👇
     this.isPrefetch = isPrefetch ?? false

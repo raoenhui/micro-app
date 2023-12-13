@@ -89,8 +89,9 @@ function vite2 (props) {
       }
       <micro-app
         name='vite2'
-        url={`${config.vite2}micro-app/vite2/`}
+        // url={`${config.vite2}micro-app/vite2/`}
         // url={`http://127.0.0.1:8080/micro-app/vite2/`}
+        url='http://localhost:4007/child/vite/'
         data={data}
         // onCreated={() => Promise.resolve().then(() => jumpToElementPlus())}
         // onBeforemount={() => jumpToElementPlus()}
@@ -104,6 +105,7 @@ function vite2 (props) {
         // inline
         // disableSandbox
         iframe
+        ignoreEditKey={['scroll/X']}
         // keep-router-state
         // disable-patch-request
         // keep-alive
