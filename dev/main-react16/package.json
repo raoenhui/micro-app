@@ -84,6 +84,7 @@
     "@umijs/preset-ant-design-pro": "^1.2.0",
     "@umijs/preset-react": "^1.4.8",
     "@umijs/yorkie": "^2.0.3",
+    "@zero/micro-plugin-map": "^0.0.1-beta.1",
     "carlo": "^0.9.46",
     "chalk": "^4.0.0",
     "cross-env": "^7.0.0",

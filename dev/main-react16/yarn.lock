@@ -2759,6 +2759,11 @@
     normalize-path "^1.0.0"
     strip-indent "^2.0.0"
 
+"@zero/micro-plugin-map@^0.0.1-beta.1":
+  version "0.0.1-beta.1"
+  resolved "http://registry.m.jd.com/@zero/micro-plugin-map/download/@zero/micro-plugin-map-0.0.1-beta.1.tgz#a1f1f7f6185c4b6da8b1665a69eceda839e63966"
+  integrity sha1-ofH39hhcS22osWZaaeztqDnmOWY=
+
 abab@^2.0.0, abab@^2.0.3, abab@^2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz#c0b678fb32d60fc1219c784d6a826fe385aeb79a"

@@ -1,6 +1,7 @@
 import 'babel-polyfill'
 import microApp, { unmountApp, unmountAllApps } from '@micro-zoe/micro-app'
 import config from './config'
+import microPluginMap from '@zero/micro-plugin-map'
 
 const prefetchConfig = [
   {
@@ -114,6 +115,7 @@ microApp.start({
           return code
         }
       }
+      ,microPluginMap
     ],
     modules: {
       react16: [{
