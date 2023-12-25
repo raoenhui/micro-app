@@ -105,7 +105,7 @@ function vite2 (props) {
         // inline
         // disableSandbox
         iframe
-        ignoreEditKey={['scroll/X']}
+        ignoreEditKey={['scrollX','scrollY']}
         // keep-router-state
         // disable-patch-request
         // keep-alive

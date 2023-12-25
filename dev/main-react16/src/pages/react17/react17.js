@@ -31,7 +31,8 @@ function React17 () {
       }
       <micro-app
         name='react17'
-        url={`${config.react17}micro-app/react17`}
+        // url={`${config.react17}micro-app/react17`}
+        url={`http://localhost:4007/child/vite/`}
         data={{from: '来自基座的数据'}}
         onMounted={() => hideLoading(false)}
         // destroy

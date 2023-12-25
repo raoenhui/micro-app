@@ -22,23 +22,12 @@ import {
 } from './special_key'
 import { appInstanceMap } from '../../create_app'
 
-const filterRegKey = (regKey: string[] | undefined, escape2RawWindowRegExpKeys: RegExp[]) => {
-  const result = []
-  if (regKey) {
-    for (const item of escape2RawWindowRegExpKeys) {
-      let temp = false
-      for (const str of regKey) {
-        if (item.test(str)) {
-          temp = true
-          break
-        }
-      }
-      if (!temp) {
-        result.push(item)
-      }
-    }
+const generateRegexFromArray = (arr: any[] | undefined) => {
+  if (arr) {
+    const pattern = arr.join('|')
+    return new RegExp(pattern, 'g')
   }
-  return result
+  return ''
 }
 
 /**
@@ -72,14 +61,16 @@ function patchWindowProperty (
   escape2RawWindowKeys.forEach((key: string) => {
     microAppWindow[key] = bindFunctionToRawTarget(rawWindow[key], rawWindow)
   })
-
-  const regKey = app?.ignoreEditKey?.split(',')
-  const filterEscape2RawWindowRegExpKeys = filterRegKey(regKey, escape2RawWindowRegExpKeys)
+  const regKey: string[] | undefined = app?.ignoreEditKey?.split(',')
+  const filterRegExpKeys = generateRegexFromArray(regKey)
 
   Object.getOwnPropertyNames(microAppWindow)
     .filter((key: string) => {
-      filterEscape2RawWindowRegExpKeys.some((reg: RegExp) => {
+      escape2RawWindowRegExpKeys.some((reg: RegExp) => {
         if (reg.test(key) && key in microAppWindow.parent) {
+          if (filterRegExpKeys?.test(key)) {
+            return false
+          }
           if (isFunction(rawWindow[key])) {
             microAppWindow[key] = bindFunctionToRawTarget(rawWindow[key], rawWindow)
           } else {
