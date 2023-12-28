@@ -2,10 +2,10 @@
   <div class="vue2">
     <el-button type="primary" round @click='changeData'>发送数据</el-button>
     <micro-app
-      name='vue2'
-      url='http://localhost:4001/micro-app/vue2'
+    name='vue2'
+      url='http://xxx.jd.com:3000/gpt/'
       :data='data'
-      inline
+      iframe
     >
     <!-- destroy inline scopecss  baseRoute='/vue2' -->
     </micro-app>
