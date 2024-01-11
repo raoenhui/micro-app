@@ -1,2 +1,3 @@
-- overview
-  * [Home](en-us/)
+- Guide
+  - [Introduction](en-us/)
+  - [Quick Start](en-us/start)
