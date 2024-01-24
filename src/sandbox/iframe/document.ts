@@ -215,13 +215,14 @@ function patchDocumentProperty (
     const descList: Array<[string, () => unknown]> = [
       ['documentURI', () => sandbox.proxyLocation.href],
       ['URL', () => sandbox.proxyLocation.href],
-      ['documentElement', () => rawDocument.documentElement],
+      ['documentElement', () => appInstanceMap.get(appName)?.container || rawDocument?.documentElement],
       ['scrollingElement', () => rawDocument.scrollingElement],
       ['forms', () => microRootDocument.prototype.querySelectorAll.call(microDocument, 'form')],
       ['images', () => microRootDocument.prototype.querySelectorAll.call(microDocument, 'img')],
       ['links', () => microRootDocument.prototype.querySelectorAll.call(microDocument, 'a')],
       // unique keys of micro-app
       ['microAppElement', () => appInstanceMap.get(appName)?.container],
+
       ['__MICRO_APP_NAME__', () => appName],
     ]
 

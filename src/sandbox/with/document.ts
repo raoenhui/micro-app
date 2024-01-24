@@ -214,6 +214,7 @@ function createProxyDocument (
       if (key === 'onclick') return onClickHandler
       if (key === 'addEventListener') return addEventListener
       if (key === 'removeEventListener') return removeEventListener
+      if (key === 'documentElement') return appInstanceMap.get(appName)?.container || rawDocument?.documentElement
       if (key === 'microAppElement') return appInstanceMap.get(appName)?.container
       if (key === '__MICRO_APP_NAME__') return appName
       return bindFunctionToRawTarget<Document>(Reflect.get(target, key), rawDocument, 'DOCUMENT')
