@@ -183,7 +183,9 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-      return querySelectorAll.call(this, `[name=${key}]`)
+       // FIXME： 这个地方是不是应该将范围扩的再大点，现在只能操作到dom，但是有些三方的sdk 需要操作到head 里面的 script 标签
+      //是不是可以只留 return rawMicroGetElementsByName.call(this, key)
+      return querySelectorAll.call(this, `[name=${key}]`)[0] ? querySelectorAll.call(this, `[name=${key}]`) : rawMicroGetElementsByName.call(this, key)
     } catch {
       return rawMicroGetElementsByName.call(_this, key)
     }
