@@ -103,7 +103,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
   }
 
   // query element👇
-  function querySelector (this: Document, selectors: string): any {
+  function querySelector (this: Document, selectors: string, target:any, selectorKey: string): any {
     if (
       !selectors ||
       isUniqueElement(selectors) ||
@@ -113,10 +113,12 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
       return rawMicroQuerySelector.call(_this, selectors)
     }
 
-    return appInstanceMap.get(appName)?.querySelector(selectors) ?? null
+    // iframe 沙箱里只能覆盖到dom，但是有些三方的sdk 需要操作到iframe 的 head 里的内容，需要将范围扩大兜底
+    const instanceSelectorResult = appInstanceMap.get(appName)?.querySelector(selectors) ?? null
+    return instanceSelectorResult ?? (target.call(this, selectorKey) ?? null)
   }
 
-  function querySelectorAll (this: Document, selectors: string): any {
+  function querySelectorAll (this: Document, selectors: string, target:any, selectorKey: string): any {
     if (
       !selectors ||
       isUniqueElement(selectors) ||
@@ -126,7 +128,9 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
       return rawMicroQuerySelectorAll.call(_this, selectors)
     }
 
-    return appInstanceMap.get(appName)?.querySelectorAll(selectors) ?? []
+    // iframe 沙箱里只能覆盖到dom，但是有些三方的sdk 需要操作到iframe 的 head 里的内容，需要将范围扩大兜底
+    const instanceSelectorResults = appInstanceMap.get(appName)?.querySelectorAll(selectors) ?? []
+    return instanceSelectorResults?.length > 0 ? instanceSelectorResults : (target.call(this, selectorKey) ?? [])
   }
 
   microRootDocument.prototype.querySelector = querySelector
@@ -139,7 +143,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-      return querySelector.call(this, `#${key}`)
+      return querySelector.call(this, `#${key}`, rawMicroGetElementById, key)
     } catch {
       return rawMicroGetElementById.call(_this, key)
     }
@@ -152,7 +156,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-      return querySelectorAll.call(this, `.${key}`)
+      return querySelectorAll.call(this, `.${key}`, rawMicroGetElementsByClassName, key)
     } catch {
       return rawMicroGetElementsByClassName.call(_this, key)
     }
@@ -170,7 +174,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-      return querySelectorAll.call(this, key)
+      return querySelectorAll.call(this, key, rawMicroGetElementsByTagName, key)
     } catch {
       return rawMicroGetElementsByTagName.call(_this, key)
     }
@@ -183,9 +187,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-       // FIXME： 这个地方是不是应该将范围扩的再大点，现在只能操作到dom，但是有些三方的sdk 需要操作到head 里面的 script 标签
-      //是不是可以只留 return rawMicroGetElementsByName.call(this, key)
-      return querySelectorAll.call(this, `[name=${key}]`)[0] ? querySelectorAll.call(this, `[name=${key}]`) : rawMicroGetElementsByName.call(this, key)
+      return querySelectorAll.call(this, `[name=${key}]`, rawMicroGetElementsByName, key)
     } catch {
       return rawMicroGetElementsByName.call(_this, key)
     }
