@@ -1,5 +1,5 @@
 import type {
-  SandBoxAdapter,
+  BaseSandboxType,
   AppInterface,
 } from '@micro-app/types'
 import globalEnv from '../libs/global_env'
@@ -7,23 +7,18 @@ import {
   defer,
   isNode,
   rawDefineProperties,
-  rawDefineProperty,
-  throttleDeferForSetAppName,
-  isMicroAppBody,
 } from '../libs/utils'
 import {
   appInstanceMap,
-  isIframeSandbox,
 } from '../create_app'
-import microApp from '../micro_app'
 
-export default class Adapter implements SandBoxAdapter {
+export class BaseSandbox implements BaseSandboxType {
   constructor () {
     this.injectReactHMRProperty()
   }
 
   // keys that can only assigned to rawWindow
-  public escapeSetterKeyList: PropertyKey[] = [
+  public rawWindowScopeKeyList: PropertyKey[] = [
     'location',
   ]
 
@@ -38,7 +33,21 @@ export default class Adapter implements SandBoxAdapter {
     'webpackJsonp',
     'webpackHotUpdate',
     'Vue',
+    // TODO: 是否可以和constants/SCOPE_WINDOW_ON_EVENT合并
+    'onpopstate',
+    'onhashchange',
   ]
+
+  // Properties that can only get and set in microAppWindow, will not escape to rawWindow
+  public scopeProperties: PropertyKey[] = Array.from(this.staticScopeProperties)
+  // Properties that can be escape to rawWindow
+  public escapeProperties: PropertyKey[] = []
+  // Properties newly added to microAppWindow
+  public injectedKeys = new Set<PropertyKey>()
+  // Properties escape to rawWindow, cleared when unmount
+  public escapeKeys = new Set<PropertyKey>()
+  // Promise used to mark whether the sandbox is initialized
+  public sandboxReady!: Promise<void>
 
   // adapter for react
   private injectReactHMRProperty (): void {
@@ -55,6 +64,14 @@ export default class Adapter implements SandBoxAdapter {
     }
   }
 }
+
+/**
+ * TODO:
+ *  1、将class Adapter去掉，改为CustomWindow，或者让CustomWindow继承Adapter
+ *  2、with沙箱中的常量放入CustomWindow，虽然和iframe沙箱不一致，但更合理
+ * 修改时机：在iframe沙箱支持插件后再修改
+ */
+export class CustomWindow {}
 
 // Fix conflict of babel-polyfill@6.x
 export function fixBabelPolyfill6 (): void {
@@ -118,6 +135,7 @@ export function updateElementInfo <T> (node: T, appName: string): T {
     rawDefineProperties(node, {
       baseURI: {
         configurable: true,
+        // if disable-memory-router or router-mode='disable', href point to base app
         get: () => proxyWindow.location.href,
       },
       __MICRO_APP_NAME__: {
@@ -126,68 +144,7 @@ export function updateElementInfo <T> (node: T, appName: string): T {
         value: appName,
       },
     })
-
-    if (isIframeSandbox(appName)) {
-      /**
-       * If HTML built-in node belongs to base app, it needs to be handled separately for parentNode
-       * Fix error for nuxt@2.x + ElementUI@2.x
-       */
-      if (node instanceof globalEnv.rawRootNode) {
-        rawDefineProperty(node, 'parentNode', {
-          configurable: true,
-          get: createGetterForIframeParentNode(
-            appName,
-            globalEnv.rawParentNodeDesc,
-            true,
-          )
-        })
-      }
-    }
   }
 
   return node
-}
-
-/**
- * patch iframe node parentNode
- * Scenes:
- *  1. iframe common node: patch Node.prototype.parentNode to hijack parentNode
- *  2. iframe HTML built-in node: belongs to base app, we should rewrite parentNode for every built-in node
- * NOTE:
- *  1. HTML built-in node parentNode cannot point to raw body, otherwise Vue2 will render failed
- * @param appName app name
- * @param parentNode parentNode Descriptor of iframe or browser
- * @param HTMLBuildInNode is HTML built-in node
- */
-export function createGetterForIframeParentNode (
-  appName: string,
-  parentNodeDesc: PropertyDescriptor,
-  HTMLBuildInNode?: boolean,
-): () => ParentNode {
-  return function (this: Node) {
-    /**
-     * set current appName for hijack parentNode of html
-     * NOTE:
-     *  1. Is there a problem with setting the current appName in iframe mode
-     */
-    throttleDeferForSetAppName(appName)
-    const result: ParentNode = parentNodeDesc.get!.call(this)
-    /**
-      * If parentNode is <micro-app-body>, return rawDocument.body
-      * Scenes:
-      *  1. element-ui@2/lib/utils/vue-popper.js
-      *    if (this.popperElm.parentNode === document.body) ...
-      * WARNING:
-      *  Will it cause other problems ?
-      *  e.g. target.parentNode.remove(target)
-      */
-    if (
-      !HTMLBuildInNode &&
-      isMicroAppBody(result) &&
-      appInstanceMap.get(appName)?.container
-    ) {
-      return microApp.options.getRootElementParentNode?.(this, appName) || globalEnv.rawDocument.body
-    }
-    return result
-  }
 }

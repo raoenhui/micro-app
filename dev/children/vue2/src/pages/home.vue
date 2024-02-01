@@ -31,6 +31,7 @@
       <div class="item" v-for="element in myArray" :key="element.id">{{element.name}}</div>
       </transition-group>
     </draggable>
+    <button @click="testWindowOpen">测试window.open</button>
   </div>
 </template>
 
@@ -99,6 +100,9 @@ export default {
     onEnd() {
       this.drag=false;
     },
+    testWindowOpen () {
+      window.open('https://www.jd.com/', '_self')
+    }
   }
 }
 </script>

@@ -18,6 +18,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",
     "sass": "^1.60.0",
+    "unocss": "^0.58.4",
     "unplugin-auto-import": "^0.15.2",
     "unplugin-element-plus": "^0.7.0",
     "unplugin-vue-components": "^0.24.1",

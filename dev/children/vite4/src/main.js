@@ -1,3 +1,4 @@
+// import 'virtual:uno.css'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import App from './App.vue'
@@ -29,7 +30,7 @@ function handleMicroData () {
 
 /* ----------------------分割线-默认模式--------------------- */
 // const router = createRouter({
-//   history: createWebHistory(import.meta.env.BASE_URL),
+//   history: createWebHistory(window.__MICRO_APP_BASE_ROUTE__ || import.meta.env.BASE_URL),
 //   routes,
 // })
 
@@ -214,21 +215,21 @@ window.onhashchange = function () {
 // }, 5000);
 
 /* -- 测试 Element.prototype.insertAdjacentElement -- 开始 */
-const dynamicStyle2 = document.createElement('style')
-dynamicStyle2.textContent = '.test-insertAdjacentElement { color: red; }'
-document.head.appendChild(dynamicStyle2)
+// const dynamicStyle2 = document.createElement('style')
+// dynamicStyle2.textContent = '.test-insertAdjacentElement { color: red; }'
+// document.head.appendChild(dynamicStyle2)
 
-const dynamicStyle3 = document.createElement('style')
-dynamicStyle3.textContent = '.test-insertAdjacentElement { color: green; }'
-dynamicStyle2.insertAdjacentElement('afterend', dynamicStyle3)
+// const dynamicStyle3 = document.createElement('style')
+// dynamicStyle3.textContent = '.test-insertAdjacentElement { color: green; }'
+// dynamicStyle2.insertAdjacentElement('afterend', dynamicStyle3)
 
-document.head.insertAdjacentElement('afterbegin', dynamicStyle3)
+// document.head.insertAdjacentElement('afterbegin', dynamicStyle3)
 
-const dynamicScript3 = document.createElement('script')
-dynamicScript3.textContent = `console.log('test insertAdjacentElement')`
-dynamicStyle2.insertAdjacentElement('afterend', dynamicScript3)
+// const dynamicScript3 = document.createElement('script')
+// dynamicScript3.textContent = `console.log('test insertAdjacentElement')`
+// dynamicStyle2.insertAdjacentElement('afterend', dynamicScript3)
 
-document.head.insertAdjacentElement('afterend', dynamicScript3)
+// document.head.insertAdjacentElement('afterend', dynamicScript3)
 /* -- 测试 Element.prototype.insertAdjacentElement -- 结束 */
 
 /* -- 测试向非head、body中插入元素 -- 开始 */

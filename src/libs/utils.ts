@@ -1,4 +1,4 @@
-/* eslint-disable no-new-func, indent, @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable no-new-func, indent, no-self-compare, @typescript-eslint/explicit-module-boundary-types */
 import type {
   Func,
   LocationQueryObject,
@@ -161,6 +161,27 @@ export function isProxyDocument (target: unknown): target is Document {
   return toTypeString(target) === '[object ProxyDocument]'
 }
 
+export function includes (target: unknown[], searchElement: unknown, fromIndex?: number): boolean {
+  if (target == null) {
+    throw new TypeError('includes target is null or undefined')
+  }
+
+  const O = Object(target)
+  const len = parseInt(O.length, 10) || 0
+  if (len === 0) return false
+  // @ts-ignore
+  fromIndex = parseInt(fromIndex, 10) || 0
+  let i = Math.max(fromIndex >= 0 ? fromIndex : len + fromIndex, 0)
+  while (i < len) {
+    // NaN !== NaN
+    if (searchElement === O[i] || (searchElement !== searchElement && O[i] !== O[i])) {
+      return true
+    }
+    i++
+  }
+  return false
+}
+
 /**
  * format error log
  * @param msg message
@@ -234,7 +255,7 @@ export function formatAppURL (url: string | null, appName: string | null = null)
   if (!isString(url) || !url) return ''
 
   try {
-    const { origin, pathname, search } = createURL(addProtocol(url))
+    const { origin, pathname, search } = createURL(addProtocol(url), (window.rawWindow || window).location.href)
     // If it ends with .html/.node/.php/.net/.etc, don’t need to add /
     if (/\.(\w+)$/.test(pathname)) {
       return `${origin}${pathname}${search}`
@@ -391,23 +412,30 @@ export function setCurrentAppName (appName: string | null): void {
   currentMicroAppName = appName
 }
 
-export function throttleDeferForSetAppName (appName: string) {
-  if (currentMicroAppName !== appName) {
-    setCurrentAppName(appName)
-    defer(() => {
-      setCurrentAppName(null)
-    })
-  }
-}
-
 // get the currently running app.name
 export function getCurrentAppName (): string | null {
   return currentMicroAppName
 }
 
 // Clear appName
-export function removeDomScope (): void {
+let preventSetAppName = false
+export function removeDomScope (force?: boolean): void {
   setCurrentAppName(null)
+  if (force && !preventSetAppName) {
+    preventSetAppName = true
+    defer(() => {
+      preventSetAppName = false
+    })
+  }
+}
+
+export function throttleDeferForSetAppName (appName: string) {
+  if (currentMicroAppName !== appName && !preventSetAppName) {
+    setCurrentAppName(appName)
+    defer(() => {
+      setCurrentAppName(null)
+    })
+  }
 }
 
 // is safari browser
@@ -423,37 +451,6 @@ export function pureCreateElement<K extends keyof MicroAppElementTagNameMap> (ta
   if (element.__MICRO_APP_NAME__) delete element.__MICRO_APP_NAME__
   element.__PURE_ELEMENT__ = true
   return element
-}
-
-/**
- * clone origin elements to target
- * @param origin Cloned element
- * @param target Accept cloned elements
- * @param deep deep clone or transfer dom
- */
-export function cloneContainer <T extends Element | ShadowRoot, Q extends Element | ShadowRoot> (
-  target: Q,
-  origin: T,
-  deep: boolean,
-): Q {
-  // 在基座接受到afterhidden方法后立即执行unmount，彻底destroy应用时，因为unmount时同步执行，所以this.container为null后才执行cloneContainer
-  if (origin) {
-    target.innerHTML = ''
-    if (deep) {
-      // TODO: ShadowRoot兼容，ShadowRoot不能直接使用cloneNode
-      const clonedNode = origin.cloneNode(true)
-      const fragment = document.createDocumentFragment()
-      Array.from(clonedNode.childNodes).forEach((node: Node | Element) => {
-        fragment.appendChild(node)
-      })
-      target.appendChild(fragment)
-    } else {
-      Array.from(origin.childNodes).forEach((node: Node | Element) => {
-        target.appendChild(node)
-      })
-    }
-  }
-  return target
 }
 
 // is invalid key of querySelector

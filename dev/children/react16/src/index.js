@@ -59,51 +59,51 @@ window.addEventListener('appstate-change', function (e) {
 })
 
 /* ----------------------分割线-默认模式--------------------- */
-// ReactDOM.render(
-//   <React.StrictMode>
-//     <ConfigProvider prefixCls="react16">
-//       <Router />
-//     </ConfigProvider>
-//   </React.StrictMode>,
-//   document.getElementById('root')
-// );
+ReactDOM.render(
+  <React.StrictMode>
+    <ConfigProvider prefixCls="react16">
+      <Router />
+    </ConfigProvider>
+  </React.StrictMode>,
+  document.getElementById('root')
+);
 
-// // 注册unmount函数，卸载时会自动执行
-// window.unmount = () => {
-//   ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-//   console.log('微应用react16卸载了 -- 默认模式');
-// }
+// 注册unmount函数，卸载时会自动执行
+window.unmount = () => {
+  ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+  console.log('微应用react16卸载了 -- 默认模式');
+}
 
-// console.timeEnd('react#16');
+console.timeEnd('react#16');
 
 /* ----------------------分割线-umd模式--------------------- */
-// 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
-window.mount = (data) => {
-  ReactDOM.render(
-    <React.StrictMode>
-      {/* 自定义antd class前缀 */}
-      <ConfigProvider prefixCls="react16">
-        <Router />
-      </ConfigProvider>
-    </React.StrictMode>,
-    document.getElementById('root')
-  );
-  console.log('微应用react16渲染了 -- UMD模式', data);
-  console.timeEnd('react#16');
-}
+// // 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
+// window.mount = (data) => {
+//   ReactDOM.render(
+//     <React.StrictMode>
+//       {/* 自定义antd class前缀 */}
+//       <ConfigProvider prefixCls="react16">
+//         <Router />
+//       </ConfigProvider>
+//     </React.StrictMode>,
+//     document.getElementById('root')
+//   );
+//   console.log('微应用react16渲染了 -- UMD模式', data);
+//   console.timeEnd('react#16');
+// }
 
-// 👇 将卸载操作放入 unmount 函数
-window.unmount = (data) => {
-  // 卸载时关闭弹窗
-  notification.destroy()
-  ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-  console.log('微应用react16卸载了 -- UMD模式', data);
-}
+// // 👇 将卸载操作放入 unmount 函数
+// window.unmount = (data) => {
+//   // 卸载时关闭弹窗
+//   notification.destroy()
+//   ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+//   console.log('微应用react16卸载了 -- UMD模式', data);
+// }
 
-// 如果不在微前端环境，则直接执行mount渲染
-if (!window.__MICRO_APP_ENVIRONMENT__) {
-  window.mount()
-}
+// // 如果不在微前端环境，则直接执行mount渲染
+// if (!window.__MICRO_APP_ENVIRONMENT__) {
+//   window.mount()
+// }
 
 /* ---------------------- micro-app 自定义全局事件 --------------------- */
 
@@ -229,6 +229,19 @@ document.head.insertAdjacentElement('afterbegin', dynamicScript3)
 // document.body.prepend(1, '2', '<div>111</div>')
 // -- 测试 Element.prototype.append -- 结束
 
+// -- 测试 Document.prototype.createElementNS -- 开始
+// const dynamicSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+// document.body.appendChild(dynamicSvg)
+// console.assert(document.body.lastChild !== dynamicSvg)
+// -- 测试 Document.prototype.createElementNS -- 结束
+
+// -- 测试 Document.prototype.createDocumentFragment -- 开始
+// const dynamicFragment = document.createDocumentFragment()
+// const fragmentDiv = document.createElement('div')
+// fragmentDiv.innerHTML = 'fragmentDiv'
+// dynamicFragment.appendChild(fragmentDiv)
+// document.body.appendChild(dynamicFragment)
+// -- 测试 Document.prototype.createDocumentFragment -- 结束
 
 /* ---------------------- 全局变量 --------------------- */
 // console.log('__micro_app_environment__', window.__micro_app_environment__)
@@ -335,33 +348,48 @@ if (process.env.NODE_ENV !== 'production') {
 
 
 /* ---------------------- 插件相关 --------------------- */
-window.scopeKey1 = 'scopeKey1'
-window.scopeKey2 = 'scopeKey2'
-window.scopeKey3 = 'scopeKey3'
-window.scopeKey4 = 'scopeKey4'
-window.scopeKey5 = 'scopeKey5'
-window.scopeKey6 = 'scopeKey6'
+// ----------------------- scope相关---------------------开始
+if (window.__MICRO_APP_ENVIRONMENT__) {
+  window.scopeKey1 = 'scopeKey1'
+  window.scopeKey2 = 'scopeKey2'
+  window.scopeKey3 = 'scopeKey3'
+  // window.scopeKey4 = 'scopeKey4'
+  window.scopeKey5 = 'scopeKey5'
+  window.scopeKey6 = 'scopeKey6'
 
-window.escapeKey1 = 'escapeKey1'
-window.escapeKey2 = 'escapeKey2'
-window.escapeKey3 = 'escapeKey3'
-window.escapeKey4 = 'escapeKey4'
-window.escapeKey5 = 'escapeKey5' // should be undefined in rawWindow
-window.escapeKey6 = 'escapeKey6' // should be undefined in rawWindow
+  // scopeKeyPure1、scopeKeyPure2为绑定变量，但子应用没有重新定义
+  console.assert(window.scopeKeyPure1 === undefined, 'window.scopeKeyPure1 错误')
+  console.assert(('scopeKeyPure1' in window) === false , 'scopeKeyPure1 in window 应该为false')
+  console.assert(window.scopeKeyPure2 === undefined, 'window.scopeKeyPure2 错误')
+  console.assert(('scopeKeyPure2' in window) === false , 'scopeKeyPure2 in window 应该为false')
 
+  // scopeKey1被重新定义，并且不会泄漏到原生window上，所以scopeKey1在rawWindow不存在
+  console.assert(window.scopeKey1 === 'scopeKey1', 'window.scopeKey1 错误')
+  console.assert(window.rawWindow.scopeKey1 === undefined, 'rawWindow.scopeKey1 错误')
+  console.assert(('scopeKey1' in window) === true , 'scopeKey1 in window 应该为true')
+  console.assert(('scopeKey1' in rawWindow) === false , 'scopeKey1 in rawWindow 应该为false')
 
-// console.log('scopeProperties scopeKeySpe: ', scopeKeySpe)
-// console.log('scopeProperties window.scopeKeySpe: ', window.scopeKeySpe)
+  // Vue是系统默认绑定变量
+  console.assert(window.Vue === undefined, 'window.Vue 应该为false')
+  console.assert(('Vue' in window) === false, 'Vue in window 应该为false')
+  window.Vue = '自定义Vue'
+  console.assert(window.Vue === '自定义Vue', 'window.Vue 应该为自定义Vue')
 
-// console.log('scopeProperties Vue: ', Vue)
-// console.log('scopeProperties window.Vue: ', window.Vue)
+  // ----------------------- scope相关---------------------结束
 
-// window.Vue = Vue ? Vue : 'child Vue'
+  // ----------------------- escape相关--------------------开始
+  console.assert(window.escapeKey1 === undefined, 'window.escapeKey1 兜底到主应用，但主应用不存在，为undefined')
+  console.assert(window.escapeKey3 !== undefined, 'window.escapeKey3 兜底到主应用，主应用存在该值，不为undefined')
+  window.escapeKey1 = 'escapeKey1'
+  window.escapeKey2 = 'escapeKey2'
+  window.escapeKey3 = 'escapeKey3'
+  window.escapeKey4 = 'escapeKey4'
+  window.escapeKey5 = 'escapeKey5' // should be undefined in rawWindow
+  window.escapeKey6 = 'escapeKey6' // should be undefined in rawWindow
 
-// console.log('scopeProperties Vue: ', Vue)
-// console.log('scopeProperties window.Vue: ', window.Vue)
-
-
+  console.assert(rawWindow.escapeKey5 === undefined, 'rawWindow.escapeKey5 结果错误')
+  // ----------------------- escape相关--------------------结束
+}
 
 /* ---------------------- pureCreateElement & removeDomScope --------------------- */
 if (window.__MICRO_APP_ENVIRONMENT__) {
@@ -369,12 +397,17 @@ if (window.__MICRO_APP_ENVIRONMENT__) {
   unBoundDom1.innerHTML = 'unBoundDom1'
   document.body.appendChild(unBoundDom1)
 
-  const createElement = document.createElement
-  const rawDocument = window.rawDocument
-  window.microApp.removeDomScope()
-  const unBoundDom2 = createElement.call(rawDocument, 'div')
+  window.microApp.removeDomScope(true)
+  const unBoundDom2 = window.document.createElement('div')
   unBoundDom2.innerHTML = 'unBoundDom2'
   document.body.appendChild(unBoundDom2)
+
+  const unBoundDom3 = window.rawDocument.createElement('div')
+  unBoundDom3.innerHTML = 'unBoundDom3'
+  document.body.appendChild(unBoundDom3)
+
+  // const dynamicSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  // document.body.appendChild(dynamicSvg)
 }
 
 
@@ -388,7 +421,18 @@ if (window.__MICRO_APP_ENVIRONMENT__) {
 // }, 0);
 
 
-/* ---------------------- location 跳转 --------------------- */
+/* ---------------------- location 相关 --------------------- */
+// 获取location信息
+console.log(`${__MICRO_APP_NAME__} location.href`, location.href, rawWindow.location.href)
+console.log(`${__MICRO_APP_NAME__} location.origin`, location.origin, rawWindow.location.origin)
+console.log(`${__MICRO_APP_NAME__} location.host`, location.host, rawWindow.location.host)
+console.log(`${__MICRO_APP_NAME__} location.hostname`, location.hostname, rawWindow.location.hostname)
+console.log(`${__MICRO_APP_NAME__} location.port`, location.port, rawWindow.location.port)
+console.log(`${__MICRO_APP_NAME__} location.protocol`, location.protocol, rawWindow.location.protocol)
+console.log(`${__MICRO_APP_NAME__} location.pathname`, location.pathname, rawWindow.location.pathname)
+console.log(`${__MICRO_APP_NAME__} location.hash`, location.hash, rawWindow.location.hash)
+console.log(`${__MICRO_APP_NAME__} location.search`, location.search, rawWindow.location.search)
+
 // 依次放开每个注释来，尽可能覆盖所有场景
 setTimeout(() => {
   // window.location.href = 'https://www.baidu.com/' // origin不同，直接跳转页面
@@ -419,7 +463,7 @@ setTimeout(() => {
   // console.log(111111, window.location)
 
   // window.history.scrollRestoration = 'manual'
-}, 5000);
+}, 3000);
 
 
 /* ---------------------- popstate 和 hashchange --------------------- */
@@ -484,3 +528,15 @@ console.log('micro-app容器元素document.microAppElement', document.microAppEl
 
 // --- document.querySelector(':root'), document.documentElement 和 动态设置css变量
 // console.log(`document.querySelector(':root'): `, document.querySelector(':root'), document.querySelector(':root') === document.documentElement)
+
+/* ---------------------- 测试重写Array.prototype.includes导致的死循环问题 --------------------- */
+// const oldIncludes = Array.prototype.includes
+
+// Array.prototype.includes = function includes (searchElement, fromIndex) {
+//   // 这样写还会导致切换子应用失败，原因是主应用切换路由时触发includes，元素作用域绑定到子应用，导致主应用的js被拦截
+//   console.assert(window.testRewriteIncludes === undefined)
+//   console.assert('testRewriteIncludes' in window === false)
+//   return oldIncludes.call(this, searchElement, fromIndex)
+// }
+
+

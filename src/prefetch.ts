@@ -2,6 +2,7 @@ import type {
   prefetchParamList,
   prefetchParam,
   globalAssetsType,
+  OnLoadParam,
 } from '@micro-app/types'
 import type {
   SourceCenter as SourceCenterType,
@@ -27,6 +28,7 @@ import {
   isFunction,
   promiseRequestIdle,
   isNumber,
+  assign,
 } from './libs/utils'
 import {
   fetchSource,
@@ -117,16 +119,22 @@ function preFetchAction (options: prefetchParam): Promise<void> {
 
         const oldOnload = app.onLoad
         const oldOnLoadError = app.onLoadError
-        app.onLoad = (html: HTMLElement): void => {
+        app.onLoad = (onLoadParam: OnLoadParam): void => {
+          if (app.isPrerender) {
+            assign(onLoadParam, {
+              defaultPage: options['default-page'],
+              /**
+               * TODO: 预渲染支持disable-memory-router，默认渲染首页即可，文档中也要保留
+               * 问题：
+               *  1、如何确保子应用进行跳转时不影响到浏览器地址？？pure？？
+               */
+              routerMode: getRouterMode(options['router-mode']),
+              baseroute: options.baseroute,
+              disablePatchRequest: options['disable-patch-request'],
+            })
+          }
           resolve()
-          oldOnload.call(
-            app,
-            html,
-            options['default-page'],
-            options['disable-patch-request'],
-            getRouterMode(options['router-mode']),
-            options.baseroute,
-          )
+          oldOnload.call(app, onLoadParam)
         }
 
         app.onLoadError = (...rests): void => {

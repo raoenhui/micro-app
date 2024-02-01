@@ -1,7 +1,7 @@
 <template>
   <div>
     <img src="../assets/logo.png" alt="">
-    <HelloWorld msg="Welcome to Vue@3.0.7"/>
+    <HelloWorld msg="Welcome to Vue@3"/>
     <el-row justify="center">
       <router-link to="/element-plus">
         <el-button type="primary" plain>跳转element-plus</el-button>

@@ -114,20 +114,6 @@ MicroApp有两种沙箱方案：`with沙箱`和`iframe沙箱`。
 
 keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者同时存在时，keep-alive将失效。
 
-## disable-memory-router
-- Desc: `关闭虚拟路由系统`
-- Type: `string(boolean)`
-- Default: `false`
-- 使用方式: `<micro-app name='xx' url='xx' disable-memory-router></micro-app>`
-
-默认情况下，子应用将运行在虚拟路由系统中，和主应用的路由系统进行隔离，避免相互影响。
-
-子应用的路由信息会作为query参数同步到浏览器地址上，如下：
-
-![alt](https://img12.360buyimg.com/imagetools/jfs/t1/204018/30/36539/9736/6523add2F41753832/31f5ad7e48ea6570.png ':size=700')
-
-设置`disable-memory-router`可以关闭虚拟路由系统，子应用将基于浏览器的路由系统进行渲染，参考[browser-router](/zh-cn/browser-router)
-
 
 ## default-page
 - Desc: `指定默认渲染的页面`
@@ -137,8 +123,25 @@ keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者�
 
 默认情况下，子应用渲染后会展示首页，设置`default-page`可以指定子应用渲染的页面。
 
-注意：
-  1. 如果关闭了虚拟路由系统，`default-page`也将失效。
+
+## router-mode
+- Desc: `路由模式`
+- Type: `string`
+- Default: `search`
+- 使用方式: `<micro-app name='xx' url='xx' router-mode='search/native/native-scope/pure'></micro-app>`
+
+路由分为四种模式：`search`、`native`、`native-scope`、`pure`，每种模式对应不同的功能，以满足尽可能多的项目需求，详情参考[虚拟路由系统](/zh-cn/router)。
+
+
+## baseroute
+- Desc: `设置子应用的基础路由`
+- Type: `string`
+- Default: `''`
+- 使用方式: `<micro-app name='xx' url='xx' baseroute='/my-page/'></micro-app>`
+
+在微前端环境下，子应用可以从window.__MICRO_APP_BASE_ROUTE__上获取baseroute的值，用于设置基础路由。
+
+只有路由模式是native或native-scope我们才需要设置baseroute，详情参考[虚拟路由系统](/zh-cn/router)。
 
 
 ## keep-router-state
@@ -155,6 +158,22 @@ keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者�
   1. 如果关闭了虚拟路由系统，`keep-router-state`也将失效。
   2. 当设置了`default-page`时`keep-router-state`将失效，因为它的优先级小于`default-page`
 
+
+## disable-memory-router
+- Desc: `关闭虚拟路由系统`
+- Type: `string(boolean)`
+- Default: `false`
+- 使用方式: `<micro-app name='xx' url='xx' disable-memory-router></micro-app>`
+
+默认情况下，子应用将运行在虚拟路由系统中，和主应用的路由系统进行隔离，避免相互影响。
+
+子应用的路由信息会作为query参数同步到浏览器地址上，如下：
+
+![alt](https://img12.360buyimg.com/imagetools/jfs/t1/204018/30/36539/9736/6523add2F41753832/31f5ad7e48ea6570.png ':size=700')
+
+设置`disable-memory-router`后，子应用将基于浏览器的路由系统进行渲染，拥有更加简洁优雅的的浏览器地址，详情参考[虚拟路由系统](/zh-cn/router)。
+
+
 ## disable-patch-request
 - Desc: `关闭子应用请求的自动补全功能`
 - Type: `string(boolean)`
@@ -169,19 +188,6 @@ keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者�
 
 如：`fetch('/api/data')` 兜底为 `fetch(主应用域名 + '/api/data')`
 
-## baseroute
-- Desc: `设置子应用的基础路由`
-- Type: `string`
-- Default: `''`
-- 使用方式: `<micro-app name='xx' url='xx' baseroute='/my-page/'></micro-app>`
-
-在微前端环境下，子应用可以从window.__MICRO_APP_BASE_ROUTE__上获取baseroute的值，用于设置基础路由。
-
-默认情况下，baseroute的功能是被禁止的，若要开启需先关闭memory-router
-```html
-<micro-app name='xx' url='xx' baseroute='/my-page/' disable-memory-router></micro-app>
-```
-
 ## fiber
 - Desc: `开启fiber模式`
 - Type: `string(boolean)`
@@ -194,7 +200,7 @@ keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者�
 > 开启fiber后会降低子应用的渲染速度。
 
 
-## shadowDOM
+<!-- ## shadowDOM
 - Desc: `开启shadowDOM`
 - Type: `string(boolean)`
 - Default: `false`
@@ -205,7 +211,7 @@ keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者�
 
 shadowDOM具有更强的样式隔离能力，开启后，`<micro-app>`标签会成为一个真正的WebComponent。
 
-但shadowDOM在React框架及一些UI库中的兼容不是很好，经常会出现一些不可预料的问题，除非你很清楚它会带来的问题并有信心解决，否则不建议使用。
+但shadowDOM在React框架及一些UI库中的兼容不是很好，经常会出现一些不可预料的问题，除非你很清楚它会带来的问题并有信心解决，否则不建议使用。 -->
 
 
 ## 全局配置
@@ -217,17 +223,17 @@ shadowDOM具有更强的样式隔离能力，开启后，`<micro-app>`标签会�
 import microApp from '@micro-zoe/micro-app'
 
 microApp.start({
-  iframe: true, // 默认值false
-  inline: true, // 默认值false
-  destroy: true, // 默认值false
-  shadowDOM: true, // 默认值false
-  ssr: true, // 默认值false
-  'disable-scopecss': true, // 默认值false
-  'disable-sandbox': true, // 默认值false
-  'keep-alive': true, // 默认值false
-  'disable-memory-router': true, // 默认值false
-  'keep-router-state': true, // 默认值false
-  'disable-patch-request': true, // 默认值false
+  iframe: true, // 全局开启iframe沙箱，默认为false
+  inline: true, // 全局开启内联script模式运行js，默认为false
+  destroy: true, // 全局开启destroy模式，卸载时强制删除缓存资源，默认为false
+  ssr: true, // 全局开启ssr模式，默认为false
+  'disable-scopecss': true, // 全局禁用样式隔离，默认为false
+  'disable-sandbox': true, // 全局禁用沙箱，默认为false
+  'keep-alive': true, // 全局开启保活模式，默认为false
+  'disable-memory-router': true, // 全局关闭虚拟路由系统，默认值false
+  'keep-router-state': true, // 子应用在卸载时保留路由状态，默认值false
+  'disable-patch-request': true, // 关闭子应用请求的自动补全功能，默认值false
+  iframeSrc: location.origin, // 设置iframe沙箱中iframe的src地址，默认为子应用所在页面地址
 })
 ```
 
@@ -239,7 +245,6 @@ microApp.start({
   iframe='false'
   inline='false'
   destroy='false'
-  shadowDOM='false'
   ssr='false'
   disable-scopecss='false'
   disable-sandbox='false'

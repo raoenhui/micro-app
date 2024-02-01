@@ -52,7 +52,7 @@ const prefetchConfig = [
 
 // microApp.preFetch(prefetchConfig)
 
-window['scopeKeySpe'] = 'value from base app'
+window['escapeKey3'] = 'escapeKey3 from base app'
 window.Vue = { tip: 'Vue from base' }
 
 microApp.start({
@@ -77,6 +77,7 @@ microApp.start({
   // getRootElementParentNode (node, appName) {
   //   return node.parentElement
   // },
+  // iframeSrc: 'http://localhost:3000/',
   lifeCycles: {
     created (e) {
       console.log('created 全局监听', 'name:', e.detail.name)
@@ -106,7 +107,7 @@ microApp.start({
   plugins: {
     global: [
       {
-        scopeProperties: ['scopeKey1', 'scopeKey2', 'scopeKeySpe'],
+        scopeProperties: ['scopeKeyPure1', 'scopeKey1', 'scopeKey2'],
         escapeProperties: ['escapeKey1', 'escapeKey2'],
         options: {a: 1,},
         loader(code, url, options) {
@@ -117,7 +118,7 @@ microApp.start({
     ],
     modules: {
       react16: [{
-        scopeProperties: ['scopeKey3', 'scopeKey4'],
+        scopeProperties: ['scopeKeyPure2', 'scopeKey3', 'scopeKey4'],
         escapeProperties: ['escapeKey3', 'escapeKey4'],
         // loader(code, url) {
         //   if (process.env.NODE_ENV === 'development' && code.indexOf('sockjs-node') > -1) {

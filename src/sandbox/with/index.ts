@@ -3,7 +3,6 @@ import type {
   WithSandBoxInterface,
   plugins,
   MicroLocation,
-  SandBoxAdapter,
   SandBoxStartParams,
   SandBoxStopParams,
   CommonEffectHook,
@@ -57,7 +56,9 @@ import {
   releasePatchHistory,
   isRouterModeCustom,
 } from '../router'
-import Adapter, {
+import {
+  BaseSandbox,
+  CustomWindow,
   fixBabelPolyfill6,
   patchElementTree,
 } from '../adapter'
@@ -89,31 +90,18 @@ export type proxyWindow = WindowProxy & MicroAppWindowDataType
 
 const { createMicroEventSource, clearMicroEventSource } = useMicroEventSource()
 
-export default class WithSandBox implements WithSandBoxInterface {
+export default class WithSandBox extends BaseSandbox implements WithSandBoxInterface {
   static activeCount = 0 // number of active sandbox
   private active = false
   private windowEffect!: CommonEffectHook
   private documentEffect!: CommonEffectHook
   private removeHistoryListener!: CallableFunction
-  public adapter!: SandBoxAdapter
-  /**
-   * Scoped global Properties(Properties that can only get and set in microAppWindow, will not escape to rawWindow)
-   * Fix https://github.com/micro-zoe/micro-app/issues/234
-   */
-  public scopeProperties: PropertyKey[] = []
-  // Properties that can be escape to rawWindow
-  public escapeProperties: PropertyKey[] = []
-  // Properties escape to rawWindow, cleared when unmount
-  public escapeKeys = new Set<PropertyKey>()
-  // Properties newly added to microAppWindow
-  public injectedKeys = new Set<PropertyKey>()
-  public sandboxReady!: Promise<void>
   public proxyWindow!: proxyWindow // Proxy
-  public microAppWindow = new EventTarget() as MicroAppWindowType // Proxy target
+  public microAppWindow = new CustomWindow() as MicroAppWindowType // Proxy target
 
   constructor (appName: string, url: string) {
+    super()
     this.patchWith((resolve: CallableFunction) => {
-      this.adapter = new Adapter()
       // get scopeProperties and escapeProperties from plugins
       this.getSpecialProperties(appName)
       // create location, history for child app
@@ -122,6 +110,8 @@ export default class WithSandBox implements WithSandBoxInterface {
       this.windowEffect = patchWindow(appName, this.microAppWindow, this)
       // patch document of child app
       this.documentEffect = patchDocument(appName, this.microAppWindow, this)
+      // properties associated with the native window
+      this.setMappingPropertiesWithRawDescriptor(this.microAppWindow)
       // inject global properties
       this.initStaticGlobalKeys(appName, url, this.microAppWindow)
       resolve()
@@ -244,6 +234,7 @@ export default class WithSandBox implements WithSandBoxInterface {
 
   /**
    * inject global properties to microAppWindow
+   * TODO: 设置为只读变量
    * @param appName app name
    * @param url app url
    * @param microAppWindow micro window
@@ -261,6 +252,7 @@ export default class WithSandBox implements WithSandBoxInterface {
     microAppWindow.__MICRO_APP_WINDOW__ = microAppWindow
     microAppWindow.__MICRO_APP_PRE_RENDER__ = false
     microAppWindow.__MICRO_APP_UMD_MODE__ = false
+    microAppWindow.__MICRO_APP_PROXY_WINDOW__ = this.proxyWindow
     microAppWindow.__MICRO_APP_SANDBOX__ = this
     microAppWindow.__MICRO_APP_SANDBOX_TYPE__ = 'with'
     microAppWindow.rawWindow = globalEnv.rawWindow
@@ -270,7 +262,6 @@ export default class WithSandBox implements WithSandBoxInterface {
       pureCreateElement,
       router,
     })
-    this.setMappingPropertiesWithRawDescriptor(microAppWindow)
   }
 
   /**
@@ -365,7 +356,6 @@ export default class WithSandBox implements WithSandBoxInterface {
    * @param appName app name
    */
   private getSpecialProperties (appName: string): void {
-    this.scopeProperties = this.scopeProperties.concat(this.adapter.staticScopeProperties)
     if (isPlainObject(microApp.options.plugins)) {
       this.commonActionForSpecialProperties(microApp.options.plugins.global)
       this.commonActionForSpecialProperties(microApp.options.plugins.modules?.[appName])
@@ -412,18 +402,10 @@ export default class WithSandBox implements WithSandBoxInterface {
       parentValue = rawWindow.parent
     }
 
-    // TODO: 用rawDefineProperties
-    rawDefineProperty(
-      microAppWindow,
-      'top',
-      this.createDescriptorForMicroAppWindow('top', topValue)
-    )
-
-    rawDefineProperty(
-      microAppWindow,
-      'parent',
-      this.createDescriptorForMicroAppWindow('parent', parentValue)
-    )
+    rawDefineProperties(microAppWindow, {
+      top: this.createDescriptorForMicroAppWindow('top', topValue),
+      parent: this.createDescriptorForMicroAppWindow('parent', parentValue),
+    })
 
     GLOBAL_KEY_TO_WINDOW.forEach((key: PropertyKey) => {
       rawDefineProperty(

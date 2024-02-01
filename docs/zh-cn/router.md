@@ -1,23 +1,100 @@
-MicroApp通过自定义location和history，实现了一套虚拟路由系统，子应用运行在这套虚拟路由系统中，和主应用的路由进行隔离，避免相互影响。
-
-子应用的路由信息会作为query参数同步到浏览器地址上，如下：
-
-![alt](https://img12.360buyimg.com/imagetools/jfs/t1/204018/30/36539/9736/6523add2F41753832/31f5ad7e48ea6570.png ':size=700')
+MicroApp通过拦截浏览器路由事件以及自定义的location、history，实现了一套虚拟路由系统，子应用运行在这套虚拟路由系统中，和主应用的路由进行隔离，避免相互影响。
 
 虚拟路由系统还提供了丰富的功能，帮助用户提升开发效率和使用体验。
 
-## 配置项
-#### 1、关闭虚拟路由系统
-虚拟路由系统是默认开启的，设置`disable-memory-router`可以进行关闭，此时子应用将基于浏览器路由进行渲染，参考[browser-router](/zh-cn/browser-router)
+## 路由模式
+虚拟路由系统分为四种模式：`search`、`native`、`native-scope`、`pure`
+
+<!-- tabs:start -->
+#### ** search模式 **
+search是默认模式，通常不需要特意设置，search模式下子应用的路由信息会作为query参数同步到浏览器地址上，如下：
+
+![alt](https://img12.360buyimg.com/imagetools/jfs/t1/204018/30/36539/9736/6523add2F41753832/31f5ad7e48ea6570.png ':size=700')
 
 **使用方式：**
 
-1、关闭某个子应用的虚拟路由
+设置单个子应用：
+```html
+<micro-app name='xx' url='xx' router-mode='search'></micro-app>
+```
+全局设置：
+```js
+import microApp from '@micro-zoe/micro-app'
+
+microApp.start({
+  'router-mode': 'search',
+})
+```
+
+
+#### ** native模式 **
+native模式下子应用完全基于浏览器路由系统进行渲染，比search模式拥有更加简洁优雅的的浏览器地址，但相应的需要更加复杂的路由配置，详情参考[browser-router](/zh-cn/browser-router)
+
+**使用方式：**
+
+设置单个子应用：
+```html
+<micro-app name='xx' url='xx' router-mode='native'></micro-app>
+```
+全局设置：
+```js
+import microApp from '@micro-zoe/micro-app'
+
+microApp.start({
+  'router-mode': 'native',
+})
+```
+
+#### ** native-scope模式 **
+native-scope模式的功能和用法和native模式一样，唯一不同点在于native-scope模式下子应用的域名指向自身而非主应用。
+
+**使用方式：**
+
+设置单个子应用：
+```html
+<micro-app name='xx' url='xx' router-mode='native-scope'></micro-app>
+```
+全局设置：
+```js
+import microApp from '@micro-zoe/micro-app'
+
+microApp.start({
+  'router-mode': 'native-scope',
+})
+```
+
+#### ** pure模式 **
+pure模式下子应用独立于浏览器进行渲染，即不会修改浏览器地址，也不会受其影响，其表现和iframe类似。
+
+**使用方式：**
+
+设置单个子应用：
+```html
+<micro-app name='xx' url='xx' router-mode='pure'></micro-app>
+```
+全局设置：
+```js
+import microApp from '@micro-zoe/micro-app'
+
+microApp.start({
+  'router-mode': 'pure',
+})
+```
+<!-- tabs:end -->
+
+
+## 配置项
+#### 1、关闭虚拟路由系统
+实际上虚拟路由系统是无法关闭的，这里的配置只是为了向下兼容旧版本，它的表现和native路由模式一致。
+
+**使用方式：**
+
+1、设置单个子应用
 ```html
 <micro-app name='xx' url='xx' disable-memory-router></micro-app>
 ```
 
-2、关闭所有子应用的虚拟路由
+2、全局设置
 ```js
 import microApp from '@micro-zoe/micro-app'
 

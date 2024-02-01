@@ -152,11 +152,11 @@ export function fetchLinksFromHtml (
      */
     if (fiberStyleResult) {
       fiberStyleResult.then(() => {
-        fiberLinkTasks!.push(() => Promise.resolve(app.onLoad(wrapElement)))
+        fiberLinkTasks!.push(() => Promise.resolve(app.onLoad({ html: wrapElement })))
         serialExecFiberTasks(fiberLinkTasks)
       })
     } else {
-      app.onLoad(wrapElement)
+      app.onLoad({ html: wrapElement })
     }
   })
 }

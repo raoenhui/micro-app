@@ -30,7 +30,7 @@ app: {
 
 在预加载中，我们会使用[requestIdleCallback](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)包裹每个预加载的操作，以减小对主应用的影响，但这不是完美无缺的，所以我们增加了一个延迟，在延迟时间结束后才开始预加载操作，进一步降低对主应用影响的可能性。
 
-如果你仍然觉得主应用受到了影响，可以增加延迟时间。
+如果主应用仍然受到了影响，可以增加延迟时间。
 
 ***修改delay的默认值：***
 

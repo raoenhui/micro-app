@@ -2,7 +2,6 @@ import type { AppInterface, fiberTasks } from '@micro-app/types'
 import {
   logError,
   CompletionPath,
-  pureCreateElement,
   injectFiberTask,
   serialExecFiberTasks,
   isLinkElement,
@@ -22,18 +21,6 @@ import {
 } from './scripts'
 import scopedCSS from '../sandbox/scoped_css'
 import globalEnv from '../libs/global_env'
-
-/**
- * transform html string to dom
- * @param str string dom
- */
-function getWrapElement (str: string): HTMLElement {
-  const wrapDiv = pureCreateElement('div')
-
-  wrapDiv.innerHTML = str
-
-  return wrapDiv
-}
 
 /**
  * Recursively process each child element
@@ -93,7 +80,7 @@ function flatChildren (
  * @param app app
  */
 export function extractSourceDom (htmlStr: string, app: AppInterface): void {
-  const wrapElement = getWrapElement(htmlStr)
+  const wrapElement = app.parseHtmlString(htmlStr)
   const microAppHead = globalEnv.rawElementQuerySelector.call(wrapElement, 'micro-app-head')
   const microAppBody = globalEnv.rawElementQuerySelector.call(wrapElement, 'micro-app-body')
 
@@ -115,14 +102,14 @@ export function extractSourceDom (htmlStr: string, app: AppInterface): void {
   if (app.source.links.size) {
     fetchLinksFromHtml(wrapElement, app, microAppHead, fiberStyleResult)
   } else if (fiberStyleResult) {
-    fiberStyleResult.then(() => app.onLoad(wrapElement))
+    fiberStyleResult.then(() => app.onLoad({ html: wrapElement }))
   } else {
-    app.onLoad(wrapElement)
+    app.onLoad({ html: wrapElement })
   }
 
   if (app.source.scripts.size) {
     fetchScriptsFromHtml(wrapElement, app)
   } else {
-    app.onLoad(wrapElement)
+    app.onLoad({ html: wrapElement })
   }
 }

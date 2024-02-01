@@ -65,30 +65,26 @@ declare module '@micro-app/types' {
     destroy?: boolean,
   }
 
-  interface SandBoxAdapter {
+  interface BaseSandboxType {
+    // Properties that can only get and set in microAppWindow, will not escape to rawWindow
+    scopeProperties: PropertyKey[]
+    // Properties that can be escape to rawWindow
+    escapeProperties: PropertyKey[]
+    // Properties newly added to microAppWindow
+    injectedKeys: Set<PropertyKey>
+    // Properties escape to rawWindow, cleared when unmount
+    escapeKeys: Set<PropertyKey>
+    // Sandbox ready state
+    sandboxReady: Promise<void>
     // Variables that can only assigned to rawWindow
-    escapeSetterKeyList: PropertyKey[]
-
+    rawWindowScopeKeyList: PropertyKey[]
     // Variables that can escape to rawWindow
     staticEscapeProperties: PropertyKey[]
-
     // Variables that scoped in child app
     staticScopeProperties: PropertyKey[]
   }
 
-  interface WithSandBoxInterface {
-    // adapter for sandbox
-    adapter: SandBoxAdapter
-    // Scoped global Properties(Properties that can only get and set in microAppWindow, will not escape to rawWindow)
-    scopeProperties: PropertyKey[]
-    // Properties that can be escape to rawWindow
-    escapeProperties: PropertyKey[]
-    // Properties escape to rawWindow, cleared when unmount
-    escapeKeys: Set<PropertyKey>
-    // Properties newly added to microAppWindow
-    injectedKeys: Set<PropertyKey>
-    // sandbox ready state
-    sandboxReady: Promise<void>
+  interface WithSandBoxInterface extends BaseSandboxType {
     // proxy(microWindow)
     proxyWindow: WindowProxy
     // child window
@@ -156,6 +152,15 @@ declare module '@micro-app/types' {
     // hiddenRouter: boolean
   }
 
+  interface OnLoadParam {
+    html: HTMLElement,
+    // below params is only for prerender app
+    defaultPage?: string // default page of virtual router
+    routerMode?: string // virtual router mode
+    baseroute?: string // route prefix, default is ''
+    disablePatchRequest?: boolean // prevent rewrite request method of child app
+  }
+
   interface UnmountParam {
     destroy: boolean, // completely destroy, delete cache resources
     clearData: boolean // clear data of dateCenter
@@ -190,7 +195,7 @@ declare module '@micro-app/types' {
     loadSourceCode (): void
 
     // resource is loaded
-    onLoad (html: HTMLElement, defaultPage?: string, disablePatchRequest?: boolean): void
+    onLoad (onLoadParam: OnLoadParam): void
 
     // Error loading HTML
     onLoadError (e: Error): void
@@ -212,6 +217,8 @@ declare module '@micro-app/types' {
 
     // get keep-alive state
     getKeepAliveState(): string | null
+
+    parseHtmlString(htmlString: string): HTMLElement
 
     // is app unmounted
     isUnmounted (): boolean
@@ -244,9 +251,9 @@ declare module '@micro-app/types' {
     inline?: boolean
     iframe?: boolean
     level?: number
+    // prerender only 👇
     'default-page'?: string
     'disable-patch-request'?: boolean
-    // prerender only 👇
     'router-mode'?: string
     baseroute?: string
     // prerender only 👆
@@ -344,6 +351,7 @@ declare module '@micro-app/types' {
     fiber?: boolean
     prefetchLevel?: number
     prefetchDelay?: number
+    iframeSrc?: string
   }
 
   interface OptionsType extends MicroAppConfig {
@@ -380,13 +388,6 @@ declare module '@micro-app/types' {
 
     // Hooks for element attributes change
     attributeChangedCallback (a: 'name' | 'url', o: string, n: string): void
-
-    /**
-     * Get configuration
-     * Global setting is lowest priority
-     * @param name Configuration item name
-     */
-    getDisposeResult <T extends keyof OptionsType> (name: T): boolean
   }
 
   // special CallableFunction for interact
@@ -397,6 +398,7 @@ declare module '@micro-app/types' {
 
   interface MicroLocation extends Location, URL {
     fullPath: string
+    self: URL | Location
     [key: string]: any
   }
 

@@ -21,7 +21,8 @@ import {
   getMicroState,
   getMicroPathFromURL,
   isEffectiveApp,
-  isRouterModeCustom,
+  isRouterModePure,
+  isRouterModeSearch,
 } from './core'
 import { dispatchNativeEvent } from './event'
 import { updateMicroLocation } from './location'
@@ -33,7 +34,7 @@ import { appInstanceMap, isIframeSandbox } from '../../create_app'
  * create proxyHistory for microApp
  * MDN https://developer.mozilla.org/en-US/docs/Web/API/History
  * @param appName app name
- * @param microLocation microApp location
+ * @param microLocation microApp location(with: proxyLocation iframe: iframeWindow.location)
  */
 export function createMicroHistory (appName: string, microLocation: MicroLocation): MicroHistory {
   const rawHistory = globalEnv.rawWindow.history
@@ -43,14 +44,16 @@ export function createMicroHistory (appName: string, microLocation: MicroLocatio
       if (isString(rests[2]) || isURL(rests[2])) {
         const targetLocation = createURL(rests[2], microLocation.href)
         const targetFullPath = targetLocation.pathname + targetLocation.search + targetLocation.hash
-        navigateWithNativeEvent(
-          appName,
-          methodName,
-          setMicroPathToURL(appName, targetLocation),
-          true,
-          setMicroState(appName, rests[0]),
-          rests[1],
-        )
+        if (!isRouterModePure(appName)) {
+          navigateWithNativeEvent(
+            appName,
+            methodName,
+            setMicroPathToURL(appName, targetLocation),
+            true,
+            setMicroState(appName, rests[0]),
+            rests[1],
+          )
+        }
         if (targetFullPath !== microLocation.fullPath) {
           updateMicroLocation(appName, targetFullPath, microLocation)
         }
@@ -143,10 +146,10 @@ export function navigateWithNativeEvent (
     nativeHistoryNavigate(appName, methodName, result.fullPath, state, title)
     /**
      * TODO:
-     *  1. 如果所有模式统一发送popstate事件，则!isRouterModeCustom(appName)要去掉
+     *  1. 如果所有模式统一发送popstate事件，则isRouterModeSearch(appName)要去掉
      *  2. 如果发送事件，则会导致vue router-view :key='router.path'绑定，无限卸载应用，死循环
      */
-    if (oldFullPath !== result.fullPath && !isRouterModeCustom(appName)) {
+    if (oldFullPath !== result.fullPath && isRouterModeSearch(appName)) {
       dispatchNativeEvent(appName, onlyForBrowser, oldHref)
     }
   }
@@ -201,7 +204,7 @@ function reWriteHistoryMethod (method: History['pushState' | 'replaceState']): C
       excludeHiddenApp: true,
       excludePreRender: true,
     }).forEach(appName => {
-      if (!isRouterModeCustom(appName) && !getMicroPathFromURL(appName)) {
+      if (isRouterModeSearch(appName) && !getMicroPathFromURL(appName)) {
         const app = appInstanceMap.get(appName)!
         attachRouteToBrowserURL(
           appName,

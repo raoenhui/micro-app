@@ -21,6 +21,7 @@ import {
   CompletionPath,
   createURL,
   isPlainObject,
+  getEffectivePath,
   getBaseHTMLElement,
 } from './libs/utils'
 import {
@@ -195,7 +196,6 @@ export function defineElement (tagName: string): void {
       }
 
       this.updateSsrUrl(this.appUrl)
-
       if (appInstanceMap.has(this.appName)) {
         const oldApp = appInstanceMap.get(this.appName)!
         const oldAppUrl = oldApp.ssrUrl || oldApp.url
@@ -340,7 +340,6 @@ export function defineElement (tagName: string): void {
     private legalAttribute (name: string, val: AttrType): boolean {
       if (!isString(val) || !val) {
         logError(`unexpected attribute ${name}, please check again`, this.appName)
-
         return false
       }
 
@@ -450,7 +449,7 @@ export function defineElement (tagName: string): void {
      * Global setting is lowest priority
      * @param name Configuration item name
      */
-    public getDisposeResult <T extends keyof OptionsType> (name: T): boolean {
+    private getDisposeResult <T extends keyof OptionsType> (name: T): boolean {
       return (this.compatibleProperties(name) || !!microApp.options[name]) && this.compatibleDisableProperties(name)
     }
 
@@ -555,7 +554,11 @@ export function defineElement (tagName: string): void {
      * @returns router-mode
      */
     private getMemoryRouterMode () : string {
-      return getRouterMode(this.getAttribute('router-mode'), this)
+      return getRouterMode(
+        this.getAttribute('router-mode'),
+        // is micro-app element set disable-memory-router, like <micro-app disable-memory-router></micro-app>
+        this.compatibleProperties('disable-memory-router') && this.compatibleDisableProperties('disable-memory-router'),
+      )
     }
 
     /**
@@ -602,6 +605,20 @@ export function defineElement (tagName: string): void {
         return this.cacheData
       }
       return null
+    }
+
+    /**
+     * get publicPath from a valid address,it can used in micro-app-devtools
+     */
+    get publicPath (): string {
+      return getEffectivePath(this.appUrl)
+    }
+
+    /**
+     * get baseRoute from attribute,it can used in micro-app-devtools
+     */
+    get baseRoute (): string {
+      return this.getBaseRouteCompatible()
     }
   }
 

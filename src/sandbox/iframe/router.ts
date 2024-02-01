@@ -11,6 +11,7 @@ import {
 } from '../router/history'
 import {
   assign,
+  createURL,
 } from '../../libs/utils'
 
 export function patchRouter (
@@ -19,7 +20,7 @@ export function patchRouter (
   microAppWindow: microAppWindowType,
   browserHost: string,
 ): MicroLocation {
-  const childStaticLocation = new URL(url) as MicroLocation
+  const childStaticLocation = createURL(url)
   const childHost = childStaticLocation.protocol + '//' + childStaticLocation.host
   const childFullPath = childStaticLocation.pathname + childStaticLocation.search + childStaticLocation.hash
 

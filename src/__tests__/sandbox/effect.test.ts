@@ -127,4 +127,28 @@ describe('sandbox effect', () => {
       }, false)
     })
   })
+
+  // 分支覆盖 -- iframe 沙箱下 html 内容中已存在元素的 instanceof 判定
+  test('coverage of instanceof judgement of element in html content under iframe sandbox', async () => {
+    const microAppElement5 = document.createElement('micro-app')
+    microAppElement5.setAttribute('name', 'test-app5')
+    microAppElement5.setAttribute('iframe', 'true');
+    microAppElement5.setAttribute('url', `http://127.0.0.1:${ports.effect}/umd4/`)
+
+    appCon.appendChild(microAppElement5)
+
+    await new Promise((resolve) => {
+      microAppElement5.addEventListener('mounted', () => {
+        setAppName('test-app5')
+        const app = appInstanceMap.get('test-app5')!
+
+        const proxyWindow = app.sandBox.proxyWindow;
+
+        expect(app.querySelector('#umd-root4') instanceof proxyWindow.Element).toBe(true)
+        expect(app.querySelector('.container') instanceof proxyWindow.Element).toBe(true)
+
+        resolve(true)
+      }, false)
+    })
+  })
 })

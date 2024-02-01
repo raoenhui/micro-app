@@ -77,8 +77,7 @@ function Vue2 () {
       }
       <micro-app
         name='vue2'
-        // url={`${config.vue2}micro-app/vue2/`}
-        url='http://localhost:9002/'
+        url={`${config.vue2}micro-app/vue2/`}
         data={data}
         // onBeforemount={() => hideLoading(false)}
         onMounted={mounted}
@@ -92,6 +91,7 @@ function Vue2 () {
         // disableSandbox
         // clear-data
         // iframe
+        router-mode='pure'
       >
       </micro-app>
     </div>

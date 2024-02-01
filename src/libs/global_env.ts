@@ -89,8 +89,8 @@ export function initGlobalEnv (): void {
     // Document proto methods
     const rawCreateElement = rawRootDocument.prototype.createElement
     const rawCreateElementNS = rawRootDocument.prototype.createElementNS
-    const rawCreateDocumentFragment = rawRootDocument.prototype.createDocumentFragment
     const rawCreateTextNode = rawRootDocument.prototype.createTextNode
+    const rawCreateDocumentFragment = rawRootDocument.prototype.createDocumentFragment
     const rawCreateComment = rawRootDocument.prototype.createComment
     const rawQuerySelector = rawRootDocument.prototype.querySelector
     const rawQuerySelectorAll = rawRootDocument.prototype.querySelectorAll

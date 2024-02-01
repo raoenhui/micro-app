@@ -8,6 +8,38 @@
 
 ---
 
+### 1.0.0-rc.4
+
+`2024-1-31`
+
+- **New**
+
+  - 🆕 新增全局配置`iframeSrc`，用于动态设置iframe沙箱的src地址。
+  - 🆕 新增micro-app元素公有变量`publicPath`、`baseRoute`，用于支持chrome插件，[PR 1052](https://github.com/micro-zoe/micro-app/pull/1052) by [raoenhui](https://github.com/raoenhui)。
+  - 🆕 新增了在iframe沙箱下对`Document.prototype.createElementNS`、`Document.prototype.createDocumentFragment`的拦截和处理。
+  - 🆕 新增了`removeDomScope`方法的配置项`force`，用于在一定时间内解除元素绑定，[issue 995](https://github.com/micro-zoe/micro-app/issues/995)。
+  - 🆕 新增了with沙箱对于`Document.prototype.createElementNS`的直接处理，规避可能存在的元素泄漏风险。
+
+- **Bug Fix**
+
+  - 🐞 修复了父应用非根目录下微应用无法正常渲染的问题，[PR 1037](https://github.com/micro-zoe/micro-app/pull/1037) by [xuhongbo](https://github.com/xuhongbo)。
+  - 🐞 修复了iframe沙箱下antd `Dropdown`、`Tooltip`等组件渲染异常的问题，[PR 1015](https://github.com/micro-zoe/micro-app/pull/1015) by [keuby](https://github.com/keuby)。
+  - 🐞 修复了micro-app url属性为相对地址时没有自动补全导致子应用渲染失败的问题，[PR 1056](https://github.com/micro-zoe/micro-app/pull/1056)。
+  - 🐞 修复了EventTarget在低版本浏览器中的兼容性问题，[issue 1064](https://github.com/micro-zoe/micro-app/issues/1064)，[issue 1065](https://github.com/micro-zoe/micro-app/issues/1065)。
+  - 🐞 修复了with沙箱在部分场景下强隔离变量`scopeProperties`通过`key in window`判断异常的问题。
+  - 🐞 修复了with沙箱在默认模式下用户自定义的强隔离变量`scopeProperties`在卸载时无法清空的问题。
+  - 🐞 修复了with沙箱子应用的`window.onpopstate`兜底到主应用导致多次执行的问题。
+  - 🐞 修复了craco子应用style元素插入顺序错误导致样式优先级混乱的问题，[issue 1071](https://github.com/micro-zoe/micro-app/issues/1071)。
+  - 🐞 修复了在部分场景下子应用重写`Array.prototype.includes`导致死循环的问题，[PR 1067](https://github.com/micro-zoe/micro-app/pull/1067) by [tinymins](https://github.com/tinymins)。
+  - 🐞 修复了在关闭虚拟路由系统时子应用域名与浏览器域名不一致的问题，[issue 937](https://github.com/micro-zoe/micro-app/issues/937)。
+
+- **Update**
+  - 🚀 虚拟路由系统升级，新增`search`、`native`、`native-scope`、`pure`模式，用于适配更多使用场景。
+  - 🚀 优化了对于iframe沙箱`Node.parentNode`的处理方式。
+  - 🚀 优化了iframe沙箱对于插件系统`escapeProperties`的支持。
+  - 🚀 更新了案例。
+
+
 ### 1.0.0-rc.3
 
 `2023-12-18`
@@ -30,8 +62,8 @@
   - 🐞 修复了子应用html自带元素`parentNode`指向异常的问题。
 
 - **Update**
-  - 🆕 更新with沙箱运行逻辑，异步执行初始化操作，确保不同沙箱之间逻辑一致。
-  - 🆕 优化了utils方法中元素判断的方式[998](https://github.com/micro-zoe/micro-app/pull/998)。
+  - 🚀 更新with沙箱运行逻辑，异步执行初始化操作，确保不同沙箱之间逻辑一致。
+  - 🚀 优化了utils方法中元素判断的方式[998](https://github.com/micro-zoe/micro-app/pull/998)。
   - 🚀 更新了案例。
   
 
@@ -51,7 +83,7 @@
   - 🐞 修复了在iframe沙箱下开启`inline`模式导致通过`getElementsByTagName`获取script元素失败的问题。
 
 - **Update**
-  - 🆕 优化了内存占用，在iframe沙箱模式下默认开启inline模式。
+  - 🚀 优化了内存占用，在iframe沙箱模式下默认开启inline模式。
   - 🚀 更新了官网文档。
   
 
