@@ -232,7 +232,7 @@ function patchDocumentProperty (
       // if disable-memory-router or router-mode='disable', href point to base app
       ['documentURI', () => sandbox.proxyLocation.href],
       ['URL', () => sandbox.proxyLocation.href],
-      ['documentElement', () => appInstanceMap.get(appName)?.container || rawDocument?.documentElement],
+      ['documentElement', () => rawDocument.documentElement],
       ['scrollingElement', () => rawDocument.scrollingElement],
       ['forms', () => microRootDocument.prototype.querySelectorAll.call(microDocument, 'form')],
       ['images', () => microRootDocument.prototype.querySelectorAll.call(microDocument, 'img')],
