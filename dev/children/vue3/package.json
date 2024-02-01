@@ -11,6 +11,7 @@
     "ant-design-vue": "^3.2.10",
     "core-js": "^3.6.5",
     "element-plus": "^2.2.9",
+    "unocss": "^0.58.4",
     "vue": "^3.2.37",
     "vue-router": "^4.0.12"
   },

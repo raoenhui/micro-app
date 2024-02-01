@@ -1,4 +1,4 @@
-/* eslint-disable no-new-func, indent, @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable no-new-func, indent, no-self-compare, @typescript-eslint/explicit-module-boundary-types */
 import type {
   Func,
   LocationQueryObject,
@@ -159,6 +159,27 @@ export function isMicroAppBody (target: unknown): target is HTMLElement {
 // is ProxyDocument
 export function isProxyDocument (target: unknown): target is Document {
   return toTypeString(target) === '[object ProxyDocument]'
+}
+
+export function includes (target: unknown[], searchElement: unknown, fromIndex?: number): boolean {
+  if (target == null) {
+    throw new TypeError('includes target is null or undefined')
+  }
+
+  const O = Object(target)
+  const len = parseInt(O.length, 10) || 0
+  if (len === 0) return false
+  // @ts-ignore
+  fromIndex = parseInt(fromIndex, 10) || 0
+  let i = Math.max(fromIndex >= 0 ? fromIndex : len + fromIndex, 0)
+  while (i < len) {
+    // NaN !== NaN
+    if (searchElement === O[i] || (searchElement !== searchElement && O[i] !== O[i])) {
+      return true
+    }
+    i++
+  }
+  return false
 }
 
 /**
@@ -391,23 +412,30 @@ export function setCurrentAppName (appName: string | null): void {
   currentMicroAppName = appName
 }
 
-export function throttleDeferForSetAppName (appName: string) {
-  if (currentMicroAppName !== appName) {
-    setCurrentAppName(appName)
-    defer(() => {
-      setCurrentAppName(null)
-    })
-  }
-}
-
 // get the currently running app.name
 export function getCurrentAppName (): string | null {
   return currentMicroAppName
 }
 
 // Clear appName
-export function removeDomScope (): void {
+let preventSetAppName = false
+export function removeDomScope (force?: boolean): void {
   setCurrentAppName(null)
+  if (force && !preventSetAppName) {
+    preventSetAppName = true
+    defer(() => {
+      preventSetAppName = false
+    })
+  }
+}
+
+export function throttleDeferForSetAppName (appName: string) {
+  if (currentMicroAppName !== appName && !preventSetAppName) {
+    setCurrentAppName(appName)
+    defer(() => {
+      setCurrentAppName(null)
+    })
+  }
 }
 
 // is safari browser

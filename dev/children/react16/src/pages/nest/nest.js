@@ -6,7 +6,7 @@ import { Button, Spin } from 'antd'
 import microApp from '@micro-zoe/micro-app'
 import config from '../../config'
 import logo from '../../assets/logo.svg';
-import './inline.less'
+import './nest.less'
 
 function Vue2 () {
   const [data] = useState({from: '来自基座的初始化数据'})
@@ -18,7 +18,7 @@ function Vue2 () {
       <div className='btn-con'>
         <Button
           type='primary'
-          onClick={() => microApp.setData('inline', {dispatch: 'data from dispatch' + (+new Date())})}
+          onClick={() => microApp.setData('nest', {dispatch: 'data from dispatch' + (+new Date())})}
           style={{width: '120px'}}
         >
           发送数据
@@ -28,7 +28,7 @@ function Vue2 () {
         showLoading && <Spin />
       }
       <micro-app-sub
-        name='inline'
+        name='nest'
         url={`${config.vue2}micro-app/vue2/`}
         data={data}
         // onBeforemount={() => hideLoading(false)}
@@ -38,7 +38,7 @@ function Vue2 () {
         inline
         // disableScopecss
         // disableSandbox
-        // iframe
+        iframe
       />
       <img src={logo} className="App-logo" alt="logo" width='100' />
     </div>

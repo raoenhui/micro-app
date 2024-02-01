@@ -12,7 +12,7 @@
     <script src="<%= BASE_URL %>layui/layui.js"></script> -->
     <script>
       try {
-        console.log('Vue', Vue, "Vue" in window)
+        console.log('window.Vue: ', window.Vue, 'Vue in window: ', 'Vue' in window)
         ;eval('console.log("html自带script的eval", window)')
       } catch (e) {
         console.log(e)

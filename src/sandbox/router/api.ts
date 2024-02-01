@@ -19,6 +19,8 @@ import {
   getMicroState,
   getMicroPathFromURL,
   isRouterModeCustom,
+  isRouterModeSearch,
+  isRouterModePure,
 } from './core'
 import {
   logError,
@@ -109,8 +111,10 @@ function createRouterApi (): RouterApi {
     const currentFullPath = microLocation.pathname + microLocation.search + microLocation.hash
     const targetFullPath = targetLocation.pathname + targetLocation.search + targetLocation.hash
     if (currentFullPath !== targetFullPath || getMicroPathFromURL(appName) !== targetFullPath) {
-      const methodName = (replace && to.replace !== false) || to.replace === true ? 'replaceState' : 'pushState'
-      navigateWithRawHistory(appName, methodName, targetLocation, to.state)
+      if (!isRouterModePure(appName)) {
+        const methodName = (replace && to.replace !== false) || to.replace === true ? 'replaceState' : 'pushState'
+        navigateWithRawHistory(appName, methodName, targetLocation, to.state)
+      }
       /**
        * TODO:
        *  1. 关闭虚拟路由的跳转地址不同：baseRoute + 子应用地址，文档中要说明
@@ -123,7 +127,7 @@ function createRouterApi (): RouterApi {
        *  NOTE1: history和search模式采用2，这样可以解决vue3的问题，custom采用1，避免vue循环刷新的问题，这样在用户出现问题时各有解决方案。但反过来说，每种方案又分别导致另外的问题，不统一，导致复杂度增高
        *  NOTE2: 关闭虚拟路由，同时发送popstate事件还是无法解决vue3的问题(毕竟history.state理论上还是会冲突)，那么就没必要发送popstate事件了。
        */
-      if (isRouterModeCustom(appName)) {
+      if (isRouterModeCustom(appName) || isRouterModePure(appName)) {
         updateMicroLocationWithEvent(appName, targetFullPath)
       }
     }
@@ -257,7 +261,7 @@ function createRouterApi (): RouterApi {
    * 3. router mode is custom
    */
   function commonHandlerForAttachToURL (appName: string): void {
-    if (!isRouterModeCustom(appName)) {
+    if (isRouterModeSearch(appName)) {
       const app = appInstanceMap.get(appName)!
       attachRouteToBrowserURL(
         appName,

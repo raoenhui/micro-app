@@ -1,5 +1,5 @@
 import type {
-  SandBoxAdapter,
+  BaseSandboxType,
   AppInterface,
 } from '@micro-app/types'
 import globalEnv from '../libs/global_env'
@@ -12,13 +12,13 @@ import {
   appInstanceMap,
 } from '../create_app'
 
-export default class Adapter implements SandBoxAdapter {
+export class BaseSandbox implements BaseSandboxType {
   constructor () {
     this.injectReactHMRProperty()
   }
 
   // keys that can only assigned to rawWindow
-  public escapeSetterKeyList: PropertyKey[] = [
+  public rawWindowScopeKeyList: PropertyKey[] = [
     'location',
   ]
 
@@ -33,7 +33,21 @@ export default class Adapter implements SandBoxAdapter {
     'webpackJsonp',
     'webpackHotUpdate',
     'Vue',
+    // TODO: 是否可以和constants/SCOPE_WINDOW_ON_EVENT合并
+    'onpopstate',
+    'onhashchange',
   ]
+
+  // Properties that can only get and set in microAppWindow, will not escape to rawWindow
+  public scopeProperties: PropertyKey[] = Array.from(this.staticScopeProperties)
+  // Properties that can be escape to rawWindow
+  public escapeProperties: PropertyKey[] = []
+  // Properties newly added to microAppWindow
+  public injectedKeys = new Set<PropertyKey>()
+  // Properties escape to rawWindow, cleared when unmount
+  public escapeKeys = new Set<PropertyKey>()
+  // Promise used to mark whether the sandbox is initialized
+  public sandboxReady!: Promise<void>
 
   // adapter for react
   private injectReactHMRProperty (): void {
@@ -121,6 +135,7 @@ export function updateElementInfo <T> (node: T, appName: string): T {
     rawDefineProperties(node, {
       baseURI: {
         configurable: true,
+        // if disable-memory-router or router-mode='disable', href point to base app
         get: () => proxyWindow.location.href,
       },
       __MICRO_APP_NAME__: {

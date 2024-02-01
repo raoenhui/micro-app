@@ -34,52 +34,52 @@ const router = new VueRouter({
 let app = null
 
 // -------------------分割线-默认模式------------------ //
-// app = new Vue({
-//   router,
-//   render: h => h(App),
-// }).$mount('#app')
+app = new Vue({
+  router,
+  render: h => h(App),
+}).$mount('#app')
 
-// // 监听卸载
-// window.unmount = () => {
-//   app.$destroy()
-//   app.$el.innerHTML = ''
-//   app = null
-//   console.log('微应用vue2卸载了 -- 默认模式')
-// }
+// 监听卸载
+window.unmount = () => {
+  app.$destroy()
+  app.$el.innerHTML = ''
+  app = null
+  console.log('微应用vue2卸载了 -- 默认模式')
+}
 
 
 // -------------------分割线-umd模式------------------ //
-// 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
-window.mount = () => {
-  return new Promise((resolve) => {
-    // setTimeout(() => {
-      app = new Vue({
-        router,
-        render: h => h(App),
-      }).$mount('#app')
-      console.log("微应用vue2渲染了 -- UMD模式")
-      resolve()
-    // }, 3000)
-  })
-}
+// // 👇 将渲染操作放入 mount 函数，子应用初始化时会自动执行
+// window.mount = () => {
+//   return new Promise((resolve) => {
+//     // setTimeout(() => {
+//       app = new Vue({
+//         router,
+//         render: h => h(App),
+//       }).$mount('#app')
+//       console.log("微应用vue2渲染了 -- UMD模式")
+//       resolve()
+//     // }, 3000)
+//   })
+// }
 
-// 👇 将卸载操作放入 unmount 函数
-window.unmount = () => {
-  return new Promise((resolve) => {
-    // setTimeout(() => {
-      app.$destroy()
-      app.$el.innerHTML = ''
-      app = null
-      console.log("微应用vue2卸载了 -- UMD模式")
-      resolve()
-    // }, 3000)
-  })
-}
+// // 👇 将卸载操作放入 unmount 函数
+// window.unmount = () => {
+//   return new Promise((resolve) => {
+//     // setTimeout(() => {
+//       app.$destroy()
+//       app.$el.innerHTML = ''
+//       app = null
+//       console.log("微应用vue2卸载了 -- UMD模式")
+//       resolve()
+//     // }, 3000)
+//   })
+// }
 
-// 如果不在微前端环境，则直接执行mount渲染
-if (!window.__MICRO_APP_ENVIRONMENT__) {
-  window.mount()
-}
+// // 如果不在微前端环境，则直接执行mount渲染
+// if (!window.__MICRO_APP_ENVIRONMENT__) {
+//   window.mount()
+// }
 
 // -------------------分割线------------------ //
 

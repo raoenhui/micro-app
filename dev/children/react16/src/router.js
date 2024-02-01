@@ -5,14 +5,14 @@ import { Menu } from 'antd';
 import { MailOutlined, AppstoreOutlined } from '@ant-design/icons';
 
 const Page2 = lazy(() => import(/* webpackChunkName: "page2" */ './pages/page2/page2'))
-const Inline = lazy(() => import(/* webpackChunkName: "inline" */ './pages/inline/inline'))
+const Nest = lazy(() => import(/* webpackChunkName: "nest" */ './pages/nest/nest'))
 
 function getDefaultKey () {
   const url = window.location.href
   if (url.includes('/page2')) {
     return 'page2'
-  } else if (url.includes('/inline')) {
-    return 'inline'
+  } else if (url.includes('/nest')) {
+    return 'nest'
   }
   return 'home'
 }
@@ -49,10 +49,10 @@ function HeadMenu () {
       // children: [<Link to='/page2'>page2</Link>],
     },
     {
-      label: 'inline',
-      key: 'inline',
+      label: 'nest',
+      key: 'nest',
       icon: <MailOutlined />,
-      // children: [<Link to='/inline'>inline</Link>],
+      // children: [<Link to='/nest'>nest</Link>],
     },
   ];
   return (
@@ -69,8 +69,8 @@ function HeadMenu () {
       <Menu.Item key='page2' icon={<MailOutlined />}>
         <Link to='/page2'>page2</Link>
       </Menu.Item>
-      <Menu.Item key='inline' icon={<MailOutlined />}>
-        <Link to='/inline'>inline</Link>
+      <Menu.Item key='nest' icon={<MailOutlined />}>
+        <Link to='/nest'>nest</Link>
       </Menu.Item> */}
     </Menu>
   )
@@ -89,9 +89,9 @@ function App () {
             <Page2 />
           </Suspense>
         </Route>
-        <Route path="/inline">
+        <Route path="/nest">
           <Suspense fallback={<div>Loading...</div>}>
-            <Inline />
+            <Nest />
           </Suspense>
         </Route>
         <Redirect to='/' />

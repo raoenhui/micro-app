@@ -220,8 +220,8 @@ export default class App extends React.Component {
     })
   }
 
-  jumpToInline = () => {
-    microApp.router.push({name: this.state.name, path: this.state.baseroute + '/inline'})
+  jumpToNest = () => {
+    microApp.router.push({name: this.state.name, path: this.state.baseroute + '/nest'})
   }
 
   useRouterGo = () => {
@@ -361,28 +361,28 @@ export default class App extends React.Component {
     //   })
     // }, 0);
 
-    // this.releaseBeforeEach1 = microApp.router.beforeEach((to, from, appName) => {
-    //   // const a = document.createElement('div')
-    //   // a.innerHTML = '44444444'
-    //   // document.body.appendChild(a)
-    //   console.log('全局 beforeEach: ', to, from, appName)
-    // })
+    this.releaseBeforeEach1 = microApp.router.beforeEach((to, from, appName) => {
+      // const a = document.createElement('div')
+      // a.innerHTML = '44444444'
+      // document.body.appendChild(a)
+      console.log('全局 beforeEach: ', to, from, appName)
+    })
 
-    // this.releaseBeforeEach2 = microApp.router.beforeEach({
-    //   react16 (to, from) {
-    //     console.log('指定 beforeEach: ', to, from)
-    //   }
-    // })
+    this.releaseBeforeEach2 = microApp.router.beforeEach({
+      react16 (to, from) {
+        console.log('指定 beforeEach: ', to, from)
+      }
+    })
 
-    // this.releaseAfterEach1 = microApp.router.afterEach((to, from, appName) => {
-    //   console.log('全局 afterEach: ', to, from, appName)
-    // })
+    this.releaseAfterEach1 = microApp.router.afterEach((to, from, appName) => {
+      console.log('全局 afterEach: ', to, from, appName)
+    })
 
-    // this.releaseAfterEach2 = microApp.router.afterEach({
-    //   react16 (to, from) {
-    //     console.log('指定 afterEach: ', to, from)
-    //   }
-    // })
+    this.releaseAfterEach2 = microApp.router.afterEach({
+      react16 (to, from) {
+        console.log('指定 afterEach: ', to, from)
+      }
+    })
 
     microApp.router.setBaseAppRouter(this.props.history)
   }
@@ -412,7 +412,7 @@ export default class App extends React.Component {
             <Button type="primary" onClick={this.changeRouterMode}>切换路由模式</Button>
             <Button type="primary" onClick={this.jumpToHome}>控制子应用跳转home</Button>
             <Button type="primary" onClick={this.jumpToPage2}>控制子应用跳转page2</Button>
-            <Button type="primary" onClick={this.jumpToInline}>控制子应用跳转inline</Button>
+            <Button type="primary" onClick={this.jumpToNest}>控制子应用跳转nest</Button>
             <Button type="primary" onClick={this.useRouterGo}>调用router.go</Button>
             <Button type="primary" onClick={this.useRouterBack}>调用router.back</Button>
             <Button type="primary" onClick={this.useRouterForward}>调用router.forward</Button>
@@ -450,8 +450,8 @@ export default class App extends React.Component {
                   // disableScopecss
                   // disable-scopecss
                   // shadowDOM
-                  // disable-memory-router={this.state.testNum===1}
-                  router-mode='custom'
+                  // disable-memory-router
+                  router-mode='native-scope'
                   // keep-router-state
                   // default-page='/micro-app/react16/page2'
                   // hidden-router
@@ -460,7 +460,7 @@ export default class App extends React.Component {
                   // fiber
                   // ssr
                   // clear-data
-                  // iframe
+                  iframe
                 >
                 </micro-app>
               )
