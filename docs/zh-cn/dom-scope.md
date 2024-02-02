@@ -13,33 +13,32 @@
 ### 解除元素绑定
 默认情况下，当子应用操作元素时会绑定元素作用域，而解绑过程是异步的，这可能会导致操作元素异常，此时有两种方式可以解决这个问题。
 
-
 **方式一：执行removeDomScope**
 
-执行`removeDomScope`方法后，元素作用域会重置为主应用。
+[removeDomScope](/zh-cn/api?id=removedomscope)方法可以解除元素绑定，通常用于受子应用元素绑定影响，导致主应用元素错误绑定到子应用的情况。
 
+**具体方式如下：**
 <!-- tabs:start -->
 #### ** 主应用 **
 ```js
 import { removeDomScope } from '@micro-zoe/micro-app'
 
-// 重置作用域
-removeDomScope()
+// 解除元素绑定，并且一定时间内(一个微任务Promise时间)阻止再次绑定
+removeDomScope(true)
 
-// 全局获取id为root的元素
-window.document.getElementById('root')
+const div = window.document.createElement('div')
+// 插入到主应用body中
+document.body.appendChild(div) 
 ```
 
 #### ** 子应用 **
 ```js
-// 注意不要使用window.rawWindow
-const _window = new Function('return window')()
+// 解除元素绑定，并且一定时间内(一个微任务Promise时间)阻止再次绑定
+window.microApp.removeDomScope(true) 
 
-// 重置作用域
-window.microApp.removeDomScope() 
-
-// 全局获取id为root的元素
-_window.document.getElementById('root') 
+const div = window.rawDocument.createElement('div')
+// 插入到主应用body中
+document.body.appendChild(div) 
 ```
 <!-- tabs:end -->
 
@@ -50,18 +49,22 @@ _window.document.getElementById('root')
 ```js
 // 等待解绑结束后操作元素
 setTimeout(() => {
-  window.document.getElementById('root') // 全局获取id为root的元素
+  const div = window.document.createElement('div')
+  // 插入到主应用body中
+  document.body.appendChild(div) 
 }, 0)
 ```
 
 #### ** 子应用 **
 ```js
-// 注意不要使用window.rawWindow
-const _window = new Function('return window')()
+// 记录主应用document
+const rawDocument = window.rawDocument
 
 // 等待解绑结束后操作元素
 setTimeout(() => {
-  _window.document.getElementById('root') // 全局获取id为root的元素
+  const div = rawDocument.createElement('div')
+  // 插入到主应用body中
+  rawDocument.body.appendChild(div) 
 }, 0)
 ```
 <!-- tabs:end -->

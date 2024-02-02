@@ -19,6 +19,7 @@ start (options?: {
   'disable-memory-router'?: boolean, // 全局关闭虚拟路由系统，默认值false
   'keep-router-state'?: boolean, // 子应用在卸载时保留路由状态，默认值false
   'disable-patch-request'?: boolean, // 关闭子应用请求的自动补全功能，默认值false
+  'router-mode'?: string, // 设置路由模式，共四种：search、native、native-scope、pure，默认为search
   iframeSrc?: string, // 设置iframe沙箱中iframe的src地址，默认为子应用所在页面地址
   // 全局生命周期
   lifeCycles?: {
@@ -217,12 +218,23 @@ document.body.appendChild(pureDiv)
 ## removeDomScope
 **描述：**解除元素绑定，通常用于受子应用元素绑定影响，导致主应用元素错误绑定到子应用的情况
 
+**介绍：**
+```js
+/**
+ * @param force 解除元素绑定，并且一定时间内(一个微任务Promise时间)阻止再次绑定。
+ */
+function removeDomScope(force?: boolean): void
+```
+
 **使用方式：**
 ```js
 import { removeDomScope } from '@micro-zoe/micro-app'
 
-// 重置作用域
+// 解除元素绑定
 removeDomScope()
+
+// 解除元素绑定，并且一定时间内阻止再次绑定
+removeDomScope(true)
 ```
 
 
@@ -624,10 +636,21 @@ document.body.appendChild(pureDiv)
 
 **版本限制：** 0.8.2及以上版本
 
+**介绍：**
+```js
+/**
+ * @param force 解除元素绑定，并且一定时间内(一个微任务Promise时间)阻止再次绑定。
+ */
+function removeDomScope(force?: boolean): void
+```
+
 **使用方式：**
 ```js
-// 重置作用域
+// 解除元素绑定
 window.microApp.removeDomScope()
+
+// 解除元素绑定，并且一定时间内阻止再次绑定
+window.microApp.removeDomScope(true)
 ```
 
 ## rawWindow

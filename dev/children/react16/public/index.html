@@ -21,6 +21,7 @@
       console.log('inline module script')
     </script>
     <script id="test-id">
+      console.assert(escapeKey3 !== undefined, 'window.escapeKey3 兜底到主应用，主应用存在该值，不为undefined')
       console.log('测试script带有id时的处理逻辑')
     </script>
 
@@ -33,6 +34,7 @@
     <script pure src="http://127.0.0.1:8080/js/pure.js"></script>
     <script inline src="http://127.0.0.1:8080/js/inline.js"></script>
     <script src="http://127.0.0.1:8080/js/test.js"></script> -->
+    <!-- <link rel="stylesheet" href="http://127.0.0.1:8080/index-dd7602f4.css"> -->
 
     <style type="text/css">
       /* @charset "UTF-8"; */

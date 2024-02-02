@@ -449,7 +449,7 @@ export function defineElement (tagName: string): void {
      * Global setting is lowest priority
      * @param name Configuration item name
      */
-    public getDisposeResult <T extends keyof OptionsType> (name: T): boolean {
+    private getDisposeResult <T extends keyof OptionsType> (name: T): boolean {
       return (this.compatibleProperties(name) || !!microApp.options[name]) && this.compatibleDisableProperties(name)
     }
 
@@ -554,7 +554,11 @@ export function defineElement (tagName: string): void {
      * @returns router-mode
      */
     private getMemoryRouterMode () : string {
-      return getRouterMode(this.getAttribute('router-mode'), this)
+      return getRouterMode(
+        this.getAttribute('router-mode'),
+        // is micro-app element set disable-memory-router, like <micro-app disable-memory-router></micro-app>
+        this.compatibleProperties('disable-memory-router') && this.compatibleDisableProperties('disable-memory-router'),
+      )
     }
 
     /**

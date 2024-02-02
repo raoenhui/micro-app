@@ -163,33 +163,3 @@ we use the package like this step:
 
 ### 源码
 micro-plugin-map 源码地址：[https://github.com/micro-zoe/micro-plugin-map](https://github.com/micro-zoe/micro-plugin-map)
-
-## 2、子午线埋点插件
-子午线埋点文件中使用function定义将函数泄漏为全局变量，这在沙箱中是不允许的，所以我们需要将其修改为
-`window.xx = funnction xx` 的形式进行适配。
-
-```bash
-# 安装子午线埋点插件
-npm install @micro-zoe/plugin-painful-joya -S
-```
-
-```js
-import microApp from '@micro-zoe/micro-app'
-import painfulJoya from '@micro-zoe/plugin-painful-joya'
-
-// 设置为全局插件，作用于所有子应用
-microApp.start({
-  plugins: {
-    global: [painfulJoya],
-  }
-})
-
-// 或者设置为某个子应用的插件，只作用于当前子应用
-microApp.start({
-  plugins: {
-    modules: {
-      'appName': [painfulJoya],
-    }
-  }
-})
-```

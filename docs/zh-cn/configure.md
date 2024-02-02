@@ -114,20 +114,6 @@ MicroApp有两种沙箱方案：`with沙箱`和`iframe沙箱`。
 
 keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者同时存在时，keep-alive将失效。
 
-## disable-memory-router
-- Desc: `关闭虚拟路由系统`
-- Type: `string(boolean)`
-- Default: `false`
-- 使用方式: `<micro-app name='xx' url='xx' disable-memory-router></micro-app>`
-
-默认情况下，子应用将运行在虚拟路由系统中，和主应用的路由系统进行隔离，避免相互影响。
-
-子应用的路由信息会作为query参数同步到浏览器地址上，如下：
-
-![alt](https://img12.360buyimg.com/imagetools/jfs/t1/204018/30/36539/9736/6523add2F41753832/31f5ad7e48ea6570.png ':size=700')
-
-设置`disable-memory-router`可以关闭虚拟路由系统，子应用将基于浏览器的路由系统进行渲染，参考[browser-router](/zh-cn/browser-router)
-
 
 ## default-page
 - Desc: `指定默认渲染的页面`
@@ -137,8 +123,25 @@ keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者�
 
 默认情况下，子应用渲染后会展示首页，设置`default-page`可以指定子应用渲染的页面。
 
-注意：
-  1. 如果关闭了虚拟路由系统，`default-page`也将失效。
+
+## router-mode
+- Desc: `路由模式`
+- Type: `string`
+- Default: `search`
+- 使用方式: `<micro-app name='xx' url='xx' router-mode='search/native/native-scope/pure'></micro-app>`
+
+路由分为四种模式：`search`、`native`、`native-scope`、`pure`，每种模式对应不同的功能，以满足尽可能多的项目需求，详情参考[虚拟路由系统](/zh-cn/router)。
+
+
+## baseroute
+- Desc: `设置子应用的基础路由`
+- Type: `string`
+- Default: `''`
+- 使用方式: `<micro-app name='xx' url='xx' baseroute='/my-page/'></micro-app>`
+
+在微前端环境下，子应用可以从window.__MICRO_APP_BASE_ROUTE__上获取baseroute的值，用于设置基础路由。
+
+只有路由模式是native或native-scope我们才需要设置baseroute，详情参考[虚拟路由系统](/zh-cn/router)。
 
 
 ## keep-router-state
@@ -155,6 +158,22 @@ keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者�
   1. 如果关闭了虚拟路由系统，`keep-router-state`也将失效。
   2. 当设置了`default-page`时`keep-router-state`将失效，因为它的优先级小于`default-page`
 
+
+## disable-memory-router
+- Desc: `关闭虚拟路由系统`
+- Type: `string(boolean)`
+- Default: `false`
+- 使用方式: `<micro-app name='xx' url='xx' disable-memory-router></micro-app>`
+
+默认情况下，子应用将运行在虚拟路由系统中，和主应用的路由系统进行隔离，避免相互影响。
+
+子应用的路由信息会作为query参数同步到浏览器地址上，如下：
+
+![alt](https://img12.360buyimg.com/imagetools/jfs/t1/204018/30/36539/9736/6523add2F41753832/31f5ad7e48ea6570.png ':size=700')
+
+设置`disable-memory-router`后，子应用将基于浏览器的路由系统进行渲染，拥有更加简洁优雅的的浏览器地址，详情参考[虚拟路由系统](/zh-cn/router)。
+
+
 ## disable-patch-request
 - Desc: `关闭子应用请求的自动补全功能`
 - Type: `string(boolean)`
@@ -168,19 +187,6 @@ keep-alive的优先级小于[destroy](/zh-cn/configure?id=destroy)，当两者�
 如果不需要这样的补全，可以配置`disable-patch-request`进行关闭，此时相对地址会兜底到主应用域名。
 
 如：`fetch('/api/data')` 兜底为 `fetch(主应用域名 + '/api/data')`
-
-## baseroute
-- Desc: `设置子应用的基础路由`
-- Type: `string`
-- Default: `''`
-- 使用方式: `<micro-app name='xx' url='xx' baseroute='/my-page/'></micro-app>`
-
-在微前端环境下，子应用可以从window.__MICRO_APP_BASE_ROUTE__上获取baseroute的值，用于设置基础路由。
-
-默认情况下，baseroute的功能是被禁止的，若要开启需先关闭memory-router
-```html
-<micro-app name='xx' url='xx' baseroute='/my-page/' disable-memory-router></micro-app>
-```
 
 ## fiber
 - Desc: `开启fiber模式`

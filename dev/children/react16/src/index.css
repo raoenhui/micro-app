@@ -25,6 +25,7 @@ code {
   --color-a: yellow;
   --color-b: red;
   --padding-50: 50px;
+  --opacity: 0.5;
 }
 
 @keyframes mymove {
@@ -52,4 +53,8 @@ code {
     display: flex;
     float: none;
   }
+}
+
+.test-back-var {
+  background-color: rgb(255 255 255 / var(--opacity));
 }

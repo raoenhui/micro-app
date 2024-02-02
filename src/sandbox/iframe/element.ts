@@ -84,6 +84,7 @@ function patchIframeNode (
   }
 
   microRootNode.prototype.appendChild = function appendChild <T extends Node> (node: T): T {
+    // TODO: 有必要执行这么多次updateElementInfo？
     updateElementInfo(node, appName)
     if (isPureNode(node)) {
       return rawMicroAppendChild.call(this, node)

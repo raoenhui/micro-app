@@ -338,14 +338,14 @@ export function fetchScriptsFromHtml (
       logError(err, app.name)
     }, () => {
       if (fiberScriptTasks) {
-        fiberScriptTasks.push(() => Promise.resolve(app.onLoad(wrapElement)))
+        fiberScriptTasks.push(() => Promise.resolve(app.onLoad({ html: wrapElement })))
         serialExecFiberTasks(fiberScriptTasks)
       } else {
-        app.onLoad(wrapElement)
+        app.onLoad({ html: wrapElement })
       }
     })
   } else {
-    app.onLoad(wrapElement)
+    app.onLoad({ html: wrapElement })
   }
 }
 
