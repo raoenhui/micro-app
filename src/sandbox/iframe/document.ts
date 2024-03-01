@@ -103,7 +103,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
   }
 
   // query element👇
-  function querySelector (this: Document, selectors: string, target:any, selectorKey: string): any {
+  function querySelector (this: Document, selectors: string): any {
     if (
       !selectors ||
       isUniqueElement(selectors) ||
@@ -115,10 +115,10 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
 
     // iframe 沙箱里只能覆盖到dom，但是有些三方的sdk 需要操作到iframe 的 head 里的内容，需要将范围扩大兜底
     const instanceSelectorResult = appInstanceMap.get(appName)?.querySelector(selectors) ?? null
-    return instanceSelectorResult ?? (target.call(this, selectorKey) ?? null)
+    return instanceSelectorResult ?? (rawMicroQuerySelector.call(this, selectors) ?? null)
   }
 
-  function querySelectorAll (this: Document, selectors: string, target:any, selectorKey: string): any {
+  function querySelectorAll (this: Document, selectors: string): any {
     if (
       !selectors ||
       isUniqueElement(selectors) ||
@@ -130,7 +130,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
 
     // iframe 沙箱里只能覆盖到dom，但是有些三方的sdk 需要操作到iframe 的 head 里的内容，需要将范围扩大兜底
     const instanceSelectorResults = appInstanceMap.get(appName)?.querySelectorAll(selectors) ?? []
-    return instanceSelectorResults?.length > 0 ? instanceSelectorResults : (target.call(this, selectorKey) ?? [])
+    return instanceSelectorResults?.length > 0 ? instanceSelectorResults : (rawMicroQuerySelectorAll.call(this, selectors) ?? [])
   }
 
   microRootDocument.prototype.querySelector = querySelector
@@ -143,7 +143,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-      return querySelector.call(this, `#${key}`, rawMicroGetElementById, key)
+      return querySelector.call(this, `#${key}`)
     } catch {
       return rawMicroGetElementById.call(_this, key)
     }
@@ -156,7 +156,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-      return querySelectorAll.call(this, `.${key}`, rawMicroGetElementsByClassName, key)
+      return querySelectorAll.call(this, `.${key}`)
     } catch {
       return rawMicroGetElementsByClassName.call(_this, key)
     }
@@ -174,7 +174,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-      return querySelectorAll.call(this, key, rawMicroGetElementsByTagName, key)
+      return querySelectorAll.call(this, key)
     } catch {
       return rawMicroGetElementsByTagName.call(_this, key)
     }
@@ -187,7 +187,7 @@ function patchDocumentPrototype (appName: string, microAppWindow: microAppWindow
     }
 
     try {
-      return querySelectorAll.call(this, `[name=${key}]`, rawMicroGetElementsByName, key)
+      return querySelectorAll.call(this, `[name=${key}]`)
     } catch {
       return rawMicroGetElementsByName.call(_this, key)
     }
