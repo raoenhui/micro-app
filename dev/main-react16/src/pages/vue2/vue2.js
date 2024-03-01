@@ -83,6 +83,7 @@ function Vue2 () {
         onMounted={mounted}
         onUnmount={unmount}
         onBeforeshow={mounted}
+        baseRoute='/micro-app/demo/vue2'
         // keep-alive
         // shadowDOM
         // destroy
