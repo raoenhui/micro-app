@@ -29,8 +29,11 @@
   - [Nextjs](zh-cn/framework/nextjs)
   - [Nuxtjs](zh-cn/framework/nuxtjs)
 
+- API
+  - [主应用API](zh-cn/api/base-app)
+  - [子应用API](zh-cn/api/child-app)
+
 - 其他
-  - [API](zh-cn/api)
   - [Micro-App-DevTools](zh-cn/micro-app-devtools)
   - [部署](zh-cn/deploy)
   - [常见问题](zh-cn/questions)

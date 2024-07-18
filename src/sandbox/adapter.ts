@@ -9,6 +9,7 @@ import {
   rawDefineProperty,
   rawDefineProperties,
   isMicroAppBody,
+  getPreventSetState,
 } from '../libs/utils'
 import {
   appInstanceMap,
@@ -100,20 +101,22 @@ export function fixReactHMRConflict (app: AppInterface): void {
 }
 
 /**
- * reDefine parentNode of html for iframe sandbox
+ * reDefine parentNode of html (just for iframe sandbox)
  * Scenes:
  *  1. element-ui@2/lib/utils/popper.js
  *    var parent = element.parentNode;
  *    // root is child app window
  *    if (parent === root.document) ...
  */
-export function throttleDeferForParentNode (microDocument: Document): void {
-  const html = globalEnv.rawDocument.firstElementChild
-  if (html.parentNode !== microDocument) {
-    setParentNode(html, microDocument)
-    defer(() => {
-      setParentNode(html, globalEnv.rawDocument)
-    })
+export function throttleDeferForParentNode (microDocument: Document | null): void {
+  if (microDocument) {
+    const html = globalEnv.rawDocument.firstElementChild
+    if (html.parentNode !== microDocument) {
+      setParentNode(html, microDocument)
+      defer(() => {
+        setParentNode(html, globalEnv.rawDocument)
+      })
+    }
   }
 }
 
@@ -162,7 +165,8 @@ export function updateElementInfo <T> (node: T, appName: string | null): T {
     appName &&
     isNode(node) &&
     !node.__MICRO_APP_NAME__ &&
-    !node.__PURE_ELEMENT__
+    !node.__PURE_ELEMENT__ &&
+    !getPreventSetState()
   ) {
     /**
      * TODO:
@@ -189,9 +193,10 @@ export function updateElementInfo <T> (node: T, appName: string | null): T {
      *  1. Node.prototype.baseURI
      *  2. Node.prototype.ownerDocument
      *  3. Node.prototype.parentNode
-     *  4. Node.prototype.cloneNode
-     *  5. Element.prototype.innerHTML
-     *  6. Image
+     *  4. Node.prototype.getRootNode
+     *  5. Node.prototype.cloneNode
+     *  6. Element.prototype.innerHTML
+     *  7. Image
      */
     if (isIframeSandbox(appName)) {
       const proxyWindow = appInstanceMap.get(appName)?.sandBox?.proxyWindow
@@ -210,8 +215,15 @@ export function updateElementInfo <T> (node: T, appName: string | null): T {
           parentNode: getIframeParentNodeDesc(
             appName,
             globalEnv.rawParentNodeDesc,
-
-          )
+          ),
+          getRootNode: {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: function getRootNode (): Node {
+              return proxyWindow.document
+            }
+          },
         })
       }
     }
@@ -233,12 +245,7 @@ export function getIframeParentNodeDesc (
     configurable: true,
     enumerable: true,
     get (this: Node) {
-      /**
-       * set current appName for hijack parentNode of html
-       * NOTE:
-       *  1. Is there a problem with setting the current appName in iframe mode
-       */
-      if (this.ownerDocument) throttleDeferForParentNode(this.ownerDocument)
+      throttleDeferForParentNode(this.ownerDocument)
       const result: ParentNode = parentNodeDesc.get?.call(this)
       /**
        * If parentNode is <micro-app-body>, return rawDocument.body

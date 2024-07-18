@@ -11,7 +11,7 @@ import {
   logWarn,
   isUniqueElement,
   isInvalidQuerySelectorKey,
-  throttleDeferForSetAppName,
+  throttleDeferForIframeAppName,
 } from '../../libs/utils'
 import globalEnv from '../../libs/global_env'
 import bindFunctionToRawTarget from '../bind_function'
@@ -275,8 +275,7 @@ function patchDocumentProperty (
       enumerable: true,
       configurable: true,
       get: () => {
-        // TODO: 去掉 throttleDeferForSetAppName
-        throttleDeferForSetAppName(appName)
+        throttleDeferForIframeAppName(appName)
         return rawDocument[tagName]
       },
       set: (value: unknown) => { rawDocument[tagName] = value },

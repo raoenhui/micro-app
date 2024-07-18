@@ -159,7 +159,7 @@ class CSSParser {
     if (this.cssText.charAt(0) === '}') {
       if (!nesting) return
       if (nesting > 1) {
-        this.commonMatch(/}+\s*/)
+        this.commonMatch(/}\s*/)
       }
       return this.matchAllDeclarations(nesting - 1)
     }
@@ -196,7 +196,8 @@ class CSSParser {
       this.documentRule() ||
       this.pageRule() ||
       this.hostRule() ||
-      this.fontFaceRule()
+      this.fontFaceRule() ||
+      this.layerRule()
   }
 
   // :global is CSS Modules rule, it will be converted to normal syntax
@@ -273,6 +274,21 @@ class CSSParser {
     if (!this.commonMatch(/^@font-face\s*/)) return false
 
     return this.commonHandlerForAtRuleWithSelfRule('font-face')
+  }
+
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/@layer
+  private layerRule (): boolean | void {
+    if (!this.commonMatch(/^@layer *([^{;@]+)/))
+        return false
+    if (!this.matchOpenBrace()) {
+        return !!this.commonMatch(/^[;\s]*/)
+    }
+    this.matchComments();
+    this.matchRules();
+    if (!this.matchCloseBrace())
+        return parseError(`@layer missing '}'`, this.linkPath);
+    this.matchLeadingSpaces();
+    return true;
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/CSSMediaRule

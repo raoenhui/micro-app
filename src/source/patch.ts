@@ -24,6 +24,9 @@ import {
   isScriptElement,
   isIFrameElement,
   isMicroAppBody,
+  isMicroAppHead,
+  isNull,
+  getIframeCurrentAppName,
 } from '../libs/utils'
 import scopedCSS from '../sandbox/scoped_css'
 import {
@@ -363,26 +366,6 @@ export function patchElementAndDocument (): void {
     return commonElementHandler(this, newChild, oldChild, globalEnv.rawReplaceChild)
   }
 
-  rawRootElement.prototype.append = function append (...nodes: (Node | string)[]): void {
-    let i = 0
-    while (i < nodes.length) {
-      let node = nodes[i]
-      node = isNode(node) ? node : globalEnv.rawCreateTextNode.call(globalEnv.rawDocument, node)
-      commonElementHandler(this, markElement(node as Node), null, globalEnv.rawAppend)
-      i++
-    }
-  }
-
-  rawRootElement.prototype.prepend = function prepend (...nodes: (Node | string)[]): void {
-    let i = nodes.length
-    while (i > 0) {
-      let node = nodes[i - 1]
-      node = isNode(node) ? node : globalEnv.rawCreateTextNode.call(globalEnv.rawDocument, node)
-      commonElementHandler(this, markElement(node as Node), null, globalEnv.rawPrepend)
-      i--
-    }
-  }
-
   // prototype methods of delete element👇
   rawRootElement.prototype.removeChild = function removeChild<T extends Node> (oldChild: T): T {
     if (oldChild?.__MICRO_APP_NAME__) {
@@ -403,6 +386,26 @@ export function patchElementAndDocument (): void {
     }
 
     return globalEnv.rawRemoveChild.call(this, oldChild) as T
+  }
+
+  rawRootElement.prototype.append = function append (...nodes: (Node | string)[]): void {
+    let i = 0
+    while (i < nodes.length) {
+      let node = nodes[i]
+      node = isNode(node) ? node : globalEnv.rawCreateTextNode.call(globalEnv.rawDocument, node)
+      commonElementHandler(this, markElement(node as Node), null, globalEnv.rawAppend)
+      i++
+    }
+  }
+
+  rawRootElement.prototype.prepend = function prepend (...nodes: (Node | string)[]): void {
+    let i = nodes.length
+    while (i > 0) {
+      let node = nodes[i - 1]
+      node = isNode(node) ? node : globalEnv.rawCreateTextNode.call(globalEnv.rawDocument, node)
+      commonElementHandler(this, markElement(node as Node), null, globalEnv.rawPrepend)
+      i--
+    }
   }
 
   /**
@@ -429,27 +432,74 @@ export function patchElementAndDocument (): void {
    *  1. May cause some problems!
    *  2. Add config options?
    */
-  function getQueryTarget (target: Node): Node | null {
-    const currentAppName = getCurrentAppName()
+  function getElementQueryTarget (target: Node): Node | null {
+    const currentAppName = getIframeCurrentAppName() || getCurrentAppName()
     if ((target === document.body || target === document.head) && currentAppName) {
       const app = appInstanceMap.get(currentAppName)
       if (app?.container) {
         if (target === document.body) {
-          return app.querySelector('micro-app-body')
+          return app.querySelector<HTMLElement>('micro-app-body')
         } else if (target === document.head) {
-          return app.querySelector('micro-app-head')
+          return app.querySelector<HTMLElement>('micro-app-head')
         }
       }
     }
     return target
   }
 
+  /**
+   * In iframe sandbox, script will render to iframe instead of micro-app-body
+   * So when query elements, we need to search both micro-app and iframe
+   * @param isEmpty get empty result
+   * @param target target element
+   * @param result origin result
+   * @param selectors selectors
+   * @param methodName querySelector or querySelectorAll
+   */
+  function getElementQueryResult <T> (
+    isEmpty: boolean,
+    target: Node,
+    result: T,
+    selectors: string,
+    methodName: string,
+  ): T {
+    if (isEmpty) {
+      const currentAppName = getIframeCurrentAppName() || getCurrentAppName()
+      if (currentAppName && isIframeSandbox(currentAppName)) {
+        const app = appInstanceMap.get(currentAppName)!
+        if (isMicroAppHead(target)) {
+          return app.sandBox.microHead[methodName](selectors)
+        }
+        if (isMicroAppBody(target)) {
+          return app.sandBox.microBody[methodName](selectors)
+        }
+      }
+    }
+    return result
+  }
+
   rawRootElement.prototype.querySelector = function querySelector (selectors: string): Node | null {
-    return globalEnv.rawElementQuerySelector.call(getQueryTarget(this) ?? this, selectors)
+    const _this = getElementQueryTarget(this) ?? this
+    const result = globalEnv.rawElementQuerySelector.call(_this, selectors)
+    return getElementQueryResult<Node | null>(
+      isNull(result) && _this !== this,
+      _this,
+      result,
+      selectors,
+      'querySelector',
+    )
   }
 
   rawRootElement.prototype.querySelectorAll = function querySelectorAll (selectors: string): NodeListOf<Node> {
-    return globalEnv.rawElementQuerySelectorAll.call(getQueryTarget(this) ?? this, selectors)
+    const _this = getElementQueryTarget(this) ?? this
+    const result = globalEnv.rawElementQuerySelectorAll.call(_this, selectors)
+    return getElementQueryResult<NodeListOf<Node>>(
+      !result.length && _this !== this,
+      _this,
+      result,
+      selectors,
+      'querySelectorAll',
+    )
   }
 
   // rewrite setAttribute, complete resource address
@@ -745,8 +795,8 @@ export function releasePatchElementAndDocument (): void {
   rawRootElement.prototype.querySelector = globalEnv.rawElementQuerySelector
   rawRootElement.prototype.querySelectorAll = globalEnv.rawElementQuerySelectorAll
   rawRootElement.prototype.setAttribute = globalEnv.rawSetAttribute
-  rawDefineProperty(rawRootElement.prototype, 'innerHTML', globalEnv.rawInnerHTMLDesc)
   rawDefineProperty(rawRootNode.prototype, 'parentNode', globalEnv.rawParentNodeDesc)
+  rawDefineProperty(rawRootElement.prototype, 'innerHTML', globalEnv.rawInnerHTMLDesc)
 }
 
 // Set the style of micro-app-head and micro-app-body

@@ -23,7 +23,7 @@ export default class App extends React.Component {
     showMicroApp: true,
     testNum: 0,
     showModal: false,
-    routerMode: 'native',
+    routerMode: 'state',
     baseroute: '/micro-app/demo/react16',
   }
 

@@ -74,14 +74,6 @@ function patchIframeNode (
     return parent
   }
 
-  microRootNode.prototype.getRootNode = function getRootNode (): Node {
-    return microDocument
-    // TODO: 什么情况下返回原生document?
-    // const rootNode = rawMicroGetRootNode.call(this, options)
-    // if (rootNode === appInstanceMap.get(appName)?.container) return microDocument
-    // return rootNode
-  }
-
   microRootNode.prototype.appendChild = function appendChild <T extends Node> (node: T): T {
     updateElementInfo(node, appName)
     if (isPureNode(node)) {
@@ -183,6 +175,20 @@ function patchIframeNode (
     rawParentNodeDesc,
   ))
 
+  microRootNode.prototype.getRootNode = function getRootNode (): Node {
+    return microDocument
+    // TODO: any case return document?
+    // const rootNode = rawMicroGetRootNode.call(this, options)
+    // if (rootNode === appInstanceMap.get(appName)?.container) return microDocument
+    // return rootNode
+  }
+
+  // patch cloneNode
+  microRootNode.prototype.cloneNode = function cloneNode (deep?: boolean): Node {
+    const clonedNode = rawMicroCloneNode.call(this, deep)
+    return updateElementInfo(clonedNode, appName)
+  }
+
   rawDefineProperty(microRootElement.prototype, 'innerHTML', {
     configurable: true,
     enumerable: true,
@@ -198,12 +204,6 @@ function patchIframeNode (
       })
     }
   })
-
-  // patch cloneNode
-  microRootNode.prototype.cloneNode = function cloneNode (deep?: boolean): Node {
-    const clonedNode = rawMicroCloneNode.call(this, deep)
-    return updateElementInfo(clonedNode, appName)
-  }
 
   // Adapt to new image(...) scene
   const ImageProxy = new Proxy(microAppWindow.Image, {

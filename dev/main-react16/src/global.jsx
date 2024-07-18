@@ -255,3 +255,9 @@ window.onclick = function () {
 // window.addEventListener('message', function(event) {
 //   console.log('基座监听的message事件', event.data, event)
 // })
+
+window.testIframeBody = function () {
+  const testIframeBody = window.document.createElement('div')
+  testIframeBody.innerHTML = 'testIframeBody'
+  document.body.appendChild(testIframeBody)
+}
