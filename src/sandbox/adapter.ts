@@ -205,7 +205,7 @@ export function updateElementInfo <T> (node: T, appName: string | null): T {
           ownerDocument: {
             configurable: true,
             enumerable: true,
-            get: () => node !== proxyWindow.document ? proxyWindow.document : null,
+            get: () => node !== proxyWindow.document || navigator?.userAgent?.indexOf('Firefox') > -1 ? proxyWindow.document : null,
           },
           parentNode: getIframeParentNodeDesc(
             appName,
