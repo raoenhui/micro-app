@@ -45,7 +45,27 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
+  <link rel="stylesheet" href="https://storage.360buyimg.com/shop-pageframe/shop.jd.com/v1/pageframe.css">
+  <!-- <link rel="stylesheet" href="./test.css"> -->
+
   <script>
-    console.log(`子应用${window.__MICRO_APP_NAME__}的内联script`)
+    console.log(`ice子应用${window.__MICRO_APP_NAME__}的内联script`)
+
+    window.addEventListener(
+      "error",
+      (event) => {
+        const errorInfo = {
+          message: event.message,
+          filename: event.filename,
+          line: event.lineno,
+          column: event.colno,
+          errorStack: event.error?.stack,
+        };
+        console.log("[ICEERROR] 错误定位", errorInfo, event);
+      },
+      !0
+    );
+
+
   </script>
 </html>

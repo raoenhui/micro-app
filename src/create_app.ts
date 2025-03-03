@@ -732,8 +732,13 @@ export default class CreateApp implements AppInterface {
     const DOMParser = this.sandBox?.proxyWindow
       ? this.sandBox.proxyWindow.DOMParser
       : globalEnv.rawWindow.DOMParser
-    return (new DOMParser()).parseFromString(htmlString, 'text/html').body
+      
+      const doc=processStyles(htmlString)
+      debugger
+      // console.log('icetestdoc',htmlString,'111',doc)
+    return (new DOMParser()).parseFromString(doc, 'text/html').body
   }
+
 
   /**
    * clone origin elements to target
@@ -832,3 +837,58 @@ export default class CreateApp implements AppInterface {
 export function isIframeSandbox (appName: string): boolean {
   return appInstanceMap.get(appName)?.iframe ?? false
 }
+
+//only make work about useful code 
+function  mapContent(content:string, fn:any):string{
+  const commentRegex = /\/\*[\s\S]*?\*\//g;
+  let a:any = (content.split(commentRegex)||[]).map(fn)
+  let b:any = content.match(commentRegex)||[]
+  let res = []
+  
+  while (a.length || b.length) {
+      if (a.length) res.push(a.shift())
+      if (b.length) res.push(b.shift())
+  }
+
+  return res.join('');
+}
+  // 提取 <style> 标签中的 @import 规则并替换为 <link> 标签
+/**
+ * 处理 HTML 中的样式。
+ * 
+ * @param html - 要处理的 HTML 字符串。
+ * @returns 处理后的 HTML 字符串。
+ */
+//make @import to be <link>
+function processStyles (html:string):string {
+  if(!html.includes('@import')) return html
+  // 匹配 <style> 标签及其内容
+  const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+  let processedHtml = html;
+
+  // 遍历所有 <style> 标签
+  processedHtml = processedHtml.replace(styleRegex, (_, styleContent) => {
+    const imports:any[] = [];
+   var aa=mapContent(styleContent,(abc:string)=>{
+
+      // 匹配 @import 规则
+      const importRegex = /@import\s+url\((.*?)\);/gi;
+      // const importRegex = /@import\s+url\((.*?)\);/gi;
+      // const importRegex = /@import\s+url\((?![^)]*\/\*.*?\*\/)[^)]*\);/gi;
+    
+      return abc.replace(importRegex, (importMatch_, url:string) => {
+        imports.push(url); // 收集 URL
+        return ''; // 移除 @import 规则
+      });
+      // return newStyleContent
+    })
+    
+    // 生成 <link> 标签
+    const linkTags = imports.map(url => `<link rel="stylesheet" href="${url}">`).join('\n');
+
+    // 将 <link> 标签插入到 <style> 标签上方，并保留清理后的 <style> 标签
+    return `${linkTags}\n<style>${aa.trim()}</style>`;
+  });
+
+  return processedHtml;
+};
